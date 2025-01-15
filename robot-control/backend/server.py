@@ -22,5 +22,35 @@ def navigate():
     return jsonify({"message": "Navigate command sent"})
 
 
+@app.route('/forward', methods=['POST'])
+def forward(): 
+    print("Status endpoint hit")
+
+    commands.move_forward()
+    return jsonify({"message": "forward command sent"})
+
+@app.route('/backward', methods=['POST'])
+def backward(): 
+    print("Status endpoint hit")
+
+    commands.move_backward()
+    return jsonify({"message": "backward command sent"})
+
+@app.route('/left', methods=['POST'])
+def keft(): 
+    print("Status endpoint hit")
+
+    commands.move_left()
+    return jsonify({"message": "forward left sent"})
+
+
+@app.route('/right', methods=['POST'])
+def right(): 
+    print("Status endpoint hit")
+
+    commands.move_right()
+    return jsonify({"message": "right command sent"})
+
+
 if __name__ == '__main__':
     app.run(debug=True, port=5001) #or any port other than one already used
