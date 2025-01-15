@@ -1,18 +1,13 @@
 import socket 
-import json
 
 ROBOT_IP = "192.168.9.201"
 
-#created a socket object
-s = socket.socket()  
-print ("succesfully created Socket")
-
-
-user = input("1 for status req, 2 for navigation")
-
-if (user == "1"): 
+def get_status(): 
     try: 
-        PORT = 19204  #for robot status API 
+        PORT = 19204
+
+        s = socket.socket()  
+        print("succesfully created Socket")
         # connecting to robot 
         s.connect((ROBOT_IP, PORT))
         print(f"Connected to the robot at {ROBOT_IP}:{PORT}")
@@ -28,13 +23,19 @@ if (user == "1"):
 
         #try to receive the message
         response = s.recv(1024)
-        print(f"response: {response}")
+        response_data = response.hex()
+
+        s.close() 
 
     except Exception as e: 
         print(f"Error: {e}")
-elif (user == "2"): 
+
+def navigate(): 
     try: 
         PORT = 19205
+        
+        s = socket.socket()  
+        print("succesfully created Socket")
         # connecting to robot 
         s.connect((ROBOT_IP, PORT))
         print(f"Connected to the robot at {ROBOT_IP}:{PORT}")
@@ -57,17 +58,11 @@ elif (user == "2"):
         response = s.recv(1024)
         print(f"response: {response}")
 
+        s.close() 
+
     except Exception as e: 
-        print(f"Error: {e}")
+        print(f"Error: {e}")    
 
-s.close()
-
-
-
-
-
-
-
-
+    
 
 
