@@ -1,4 +1,4 @@
-from flask import Flask, jsonify
+from flask import Flask, jsonify, request #eventually want ot make it so user can manually enter and it gets passed into functions
 from flask_cors import CORS
 import commands
 
@@ -26,7 +26,10 @@ def navigate():
 def forward(): 
     print("Status endpoint hit")
 
+    print({'message': request.get_json()})
+
     commands.move_forward()
+    
     return jsonify({"message": "forward command sent"})
 
 @app.route('/backward', methods=['POST'])

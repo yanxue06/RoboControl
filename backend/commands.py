@@ -24,9 +24,9 @@ def get_status():
 
         #try to receive the message
         response = s.recv(1024)
-        response_data = response.hex()
-
         s.close() 
+
+        return response 
 
     except Exception as e: 
         print(f"Error: {e}")
@@ -79,19 +79,17 @@ def move_forward():
         # 7B 22 64 69 73 74 22 3A 35 2E 30 2C 22 76 78 22 
         # 3A 30 2E 35 2C 22 76 79 22 3A 30 2E 35 7D
 
-        # header
-        header = b"\x5A\x01\x00\x01\x00\x00\x00\x1E\x0B\xEF\x00\x00\x00\x00\x00\x00"
+        data = {"dist": 5.0, "vx": 0.5, "vy": 0}
+        payload_bytes = json.dumps(data, separators=(',', ':')).encode('utf-8')
+        length_byte = len(payload_bytes)  # e.g. 28
 
-        # JSON Data, can now edit these parameters freely and the translation range will also change 
-        data = {"dist": 3.0, "vx": 0.5, "vy": 0} 
-        
-        # encoding data so robot can read 
-        payload = json.dumps(data).encode('utf-8')
+        # Convert the header into a mutable bytearray
+        header_array = bytearray(b"\x5A\x01\x00\x01\x00\x00\x00\x1E\x0B\xEF\x00\x00\x00\x00\x00\x00")
+        header_array[7] = length_byte     # set the 8th byte to the actual length
 
-        # concatenating to make the full message
-        message = header + payload 
-       
+        message = bytes(header_array) + payload_bytes
         s.send(message)
+
         
         print("sent message")
         # b"": Indicates a byte string (raw binary data).
@@ -102,6 +100,7 @@ def move_forward():
 
         #try to receive the message
         response = s.recv(1024)
+        print(response)
 
         s.close() 
 
@@ -120,7 +119,23 @@ def move_backward():
         s.connect((ROBOT_IP, PORT))
         print(f"Connected to the robot at {ROBOT_IP}:{PORT}")
 
-        s.send(b"\x5A\x01\x00\x01\x00\x00\x00\x1E\x0B\xEF\x00\x00\x00\x00\x00\x00\x7B\x22\x64\x69\x73\x74\x22\x3A\x35\x2E\x30\x2C\x22\x76\x78\x22\x3A\x30\x2E\x35\x2C\x22\x76\x79\x22\x3A\x30\x2E\x35\x7D")
+        # // move straight for 5m
+        # 5A 01 00 01 00 00 00 1E 0B EF 00 00 00 00 00 00 
+        # 7B 22 64 69 73 74 22 3A 35 2E 30 2C 22 76 78 22 
+        # 3A 30 2E 35 2C 22 76 79 22 3A 30 2E 35 7D
+
+        data = {"dist": 5.0, "vx": -0.5, "vy": 0}
+        payload_bytes = json.dumps(data, separators=(',', ':')).encode('utf-8')
+        length_byte = len(payload_bytes)  # e.g. 28
+
+        # Convert the header into a mutable bytearray
+        header_array = bytearray(b"\x5A\x01\x00\x01\x00\x00\x00\x1E\x0B\xEF\x00\x00\x00\x00\x00\x00")
+        header_array[7] = length_byte     # set the 8th byte to the actual length
+
+        message = bytes(header_array) + payload_bytes
+        s.send(message)
+
+        
         print("sent message")
         # b"": Indicates a byte string (raw binary data).
         # \x: Specifies a single byte in hexadecimal format.
@@ -130,6 +145,7 @@ def move_backward():
 
         #try to receive the message
         response = s.recv(1024)
+        print(response)
 
         s.close() 
 
@@ -148,7 +164,23 @@ def move_left():
         s.connect((ROBOT_IP, PORT))
         print(f"Connected to the robot at {ROBOT_IP}:{PORT}")
 
-        s.send(b"\x5A\x01\x00\x01\x00\x00\x00\x1E\x0B\xEF\x00\x00\x00\x00\x00\x00\x7B\x22\x64\x69\x73\x74\x22\x3A\x35\x2E\x30\x2C\x22\x76\x78\x22\x3A\x30\x2E\x35\x2C\x22\x76\x79\x22\x3A\x30\x2E\x35\x7D")
+        # // move straight for 5m
+        # 5A 01 00 01 00 00 00 1E 0B EF 00 00 00 00 00 00 
+        # 7B 22 64 69 73 74 22 3A 35 2E 30 2C 22 76 78 22 
+        # 3A 30 2E 35 2C 22 76 79 22 3A 30 2E 35 7D
+
+        data = {"dist": 5.0, "vx": 0, "vy": 0.5}
+        payload_bytes = json.dumps(data, separators=(',', ':')).encode('utf-8')
+        length_byte = len(payload_bytes)  # e.g. 28
+
+        # Convert the header into a mutable bytearray
+        header_array = bytearray(b"\x5A\x01\x00\x01\x00\x00\x00\x1E\x0B\xEF\x00\x00\x00\x00\x00\x00")
+        header_array[7] = length_byte     # set the 8th byte to the actual length
+
+        message = bytes(header_array) + payload_bytes
+        s.send(message)
+
+        
         print("sent message")
         # b"": Indicates a byte string (raw binary data).
         # \x: Specifies a single byte in hexadecimal format.
@@ -158,14 +190,16 @@ def move_left():
 
         #try to receive the message
         response = s.recv(1024)
+        print(response)
 
         s.close() 
+
         return response
 
     except Exception as e: 
         print(f"Error: {e}")
 
-def move_right(): 
+def move_right(): #in thinking call a 90 or 270 degree turn first, and then move straight 
     try: 
         PORT = 19206
 
@@ -175,7 +209,23 @@ def move_right():
         s.connect((ROBOT_IP, PORT))
         print(f"Connected to the robot at {ROBOT_IP}:{PORT}")
 
-        s.send(b"\x5A\x01\x00\x01\x00\x00\x00\x1E\x0B\xEF\x00\x00\x00\x00\x00\x00\x7B\x22\x64\x69\x73\x74\x22\x3A\x35\x2E\x30\x2C\x22\x76\x78\x22\x3A\x30\x2E\x35\x2C\x22\x76\x79\x22\x3A\x30\x2E\x35\x7D")
+        # // move straight for 5m
+        # 5A 01 00 01 00 00 00 1E 0B EF 00 00 00 00 00 00 
+        # 7B 22 64 69 73 74 22 3A 35 2E 30 2C 22 76 78 22 
+        # 3A 30 2E 35 2C 22 76 79 22 3A 30 2E 35 7D
+
+        data = {"dist": 5.0, "vx": 0, "vy": -0.5}
+        payload_bytes = json.dumps(data, separators=(',', ':')).encode('utf-8')
+        length_byte = len(payload_bytes)  # e.g. 28
+
+        # Convert the header into a mutable bytearray
+        header_array = bytearray(b"\x5A\x01\x00\x01\x00\x00\x00\x1E\x0B\xEF\x00\x00\x00\x00\x00\x00")
+        header_array[7] = length_byte     # set the 8th byte to the actual length
+
+        message = bytes(header_array) + payload_bytes
+        s.send(message)
+
+        
         print("sent message")
         # b"": Indicates a byte string (raw binary data).
         # \x: Specifies a single byte in hexadecimal format.
@@ -185,8 +235,10 @@ def move_right():
 
         #try to receive the message
         response = s.recv(1024)
+        print(response)
 
         s.close() 
+
         return response
 
     except Exception as e: 
