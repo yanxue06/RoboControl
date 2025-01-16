@@ -4,6 +4,8 @@ import Button from '@mui/material/Button';
 import TextField from "@mui/material/TextField";
 
 function App() {
+
+  // STATUS 
   const handleGetStatus = async () => {
     try {
       // Returns a promise, which comes to a Response object.
@@ -18,6 +20,7 @@ function App() {
     }
   };
 
+  // NAVIGATE 
   const handleNavigate = async () => {
     try {
       // Example POST to navigate
@@ -36,6 +39,9 @@ function App() {
     }
   };
 
+  //CONTROLS 
+  
+  //FORWARD 
   const moveForward = async () => { 
     try {
       // TESTING DATA, in the form of a dictionary 
@@ -49,9 +55,8 @@ function App() {
 
       console.log('sending forward:', valueForward, ' meters');
 
-
       // Post to moveForward
-      const response = await fetch('http://localhost:5001/forward', {
+      const response = await fetch('http://localhost:5001/forward', { //waits for http request to complete 
         method: 'POST',
         headers: {
           'Content-Type': 'application/json'
@@ -67,6 +72,18 @@ function App() {
     }
   }
 
+  const [valueForward, setForwardValue] = useState("");
+
+  const handleForwardChange = (event) => {
+    setForwardValue(event.target.value)
+  }
+  /*
+  event is the event object provided by the onChange handler.
+  event.target refers to the input element that triggered the event.
+  event.target.value contains the current text entered by the user.
+  */
+
+  //BACK 
   const moveBackward = async () => { 
     try {
       const testData = {
@@ -81,8 +98,8 @@ function App() {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'body': testData
-        }
+        },
+        'body': JSON.stringify(testData)
       }); 
 
       console.log("backward  called")
@@ -93,42 +110,38 @@ function App() {
     }
   }
 
-  const [valueForward, setForwardValue] = useState("");
-
-  const handleForwardChange = (event) => {
-    setForwardValue(event.target.value)
-  }
-  /*
-  event is the event object provided by the onChange handler.
-  event.target refers to the input element that triggered the event.
-  event.target.value contains the current text entered by the user.
-  */
-
   const [valueBackward, setBackwardValue] = useState("");
 
   const handleBackwardChange = (event) => {
     setBackwardValue(event.target.value)
   }
 
+  //ROTATE
+  const [valueAngle, setAngleValue] = useState("");
+
+  const handleAngleChange = (event) => {
+    setAngleValue(event.target.value)
+  }
+
   const rotateLeft = async () => { 
     try {
       const testData = {
-        distance: Number(valueBackward) //convert string to int
+        angle: Number(valueAngle) //convert string to int
       };
-      if (!testData.distance) {
-        alert("Please enter a valid distance!");
+      if (!testData.angle) {
+        alert("Please enter a valid angle in degrees!");
         return;
       }
 
-      const response = await fetch('http://localhost:5001/backward', {
+      const response = await fetch('http://localhost:5001/rotateLeft', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'body': testData
-        }
+        }, 
+        body: JSON.stringify(testData)
       }); 
 
-      console.log("backward  called")
+      console.log("rotate left called")
       const data = await response.json();
       console.log('Navigate Response:', data);
     } catch (error) {
@@ -148,16 +161,16 @@ function App() {
         </div>
 
         <div className="column">
-          <h2>Navigation</h2>
+          <h2>Control</h2> 
           <Button onClick={handleNavigate} variant="outlined">
             Relocate
           </Button>
         </div>
 
         <div className="column">
-          <h2>Controls</h2>
+          <h2>Navigation</h2>
           <div className = "attached"> 
-            <Button onClick={moveForward} variant="outlined">
+            <Button onClick={moveForward} variant="outlined" sx={{width: "11rem"}}>
               Move Forwards
             </Button>
             <TextField 
@@ -178,12 +191,13 @@ function App() {
                 },
                 "& .MuiInputBase-input": {
                     color: "beige", // Change the text color
-                  },
+                },
+                width: "150px"
               }} 
             />
           </div> 
           <div className = "attached"> 
-            <Button onClick={moveBackward} variant="outlined">
+            <Button onClick={moveBackward} variant="outlined" sx={{width: "11rem"}}>
               Move Backward
             </Button>
             <TextField 
@@ -205,13 +219,37 @@ function App() {
                   "& .MuiInputBase-input": {
                     color: "beige", // Change the text color
                   },
+                  width: "150px"
                 }} 
-            />
+              />
           </div>
           <div className="attached"> 
-            <Button variant="outlined">
+            <Button onClick={rotateLeft} variant="outlined" sx={{width: "11rem"}}>
               Rotate Left
             </Button>
+            <TextField 
+              id="outlined-basic" 
+              label="angle" 
+              variant="outlined" 
+              size="small"
+              value={valueAngle}
+              onChange={handleAngleChange}
+              sx={{
+                  "& .MuiOutlinedInput-root": {
+                    "& fieldset": {
+                      borderColor: "beige", // Default border color
+                    },
+                  },
+                  "& .MuiInputLabel-root": {
+                    color: "grey", // Default label color
+                  },
+                  "& .MuiInputBase-input": {
+                    color: "beige", // Change the text color
+                  },
+                  width: "150px"
+                }} 
+              />
+
           </div>
           
         </div>

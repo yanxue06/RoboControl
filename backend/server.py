@@ -34,7 +34,16 @@ def forward():
 def backward(): 
     print("Status endpoint hit")
 
-    commands.move_backward()
+    commands.move_backward(request.get_json().get('distance'))
+    
+    return jsonify({"message": "backward command sent"})
+
+@app.route('/rotateLeft', methods=['POST'])
+def rotate_left(): 
+    print("Status endpoint hit")
+
+    commands.rotate_left(request.get_json().get('angle'))
+
     return jsonify({"message": "backward command sent"})
 
 
