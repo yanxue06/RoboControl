@@ -17,10 +17,32 @@
   text-align: center; 
 }
 
-.controls { 
-  width: 100%;
+.container {
+  display: flex;        
+  flex-direction: row; 
+  gap: 3rem;            /* space between columns */
+  margin: 2rem;         /* some outer spacing */
+  justify-content: center; 
+}
+
+.column {
+  display: flex;        /* so we can vertically stack items */
+  flex-direction: column;
+  gap: 0.5rem;          /* space between heading & buttons, and between buttons */
+}
+
+/* Optionally, style the heading */
+.column h2 {
+  margin-bottom: 0.5rem;
+  text-align: left; 
+}
+
+/* If you want to style the buttons differently, you can do so here */
+.column button {
+  min-width: 140px;     /* example: make each button at least 140px wide */
+}
+
+.attached { 
   display: flex;
-  flex-direction: horizontal; 
-  gap: 20px;
-  justify-content: center;
+  gap: 12px; 
 }

@@ -1,5 +1,7 @@
+import React, { useState } from "react";
 import './App.css'
 import Button from '@mui/material/Button';
+import TextField from "@mui/material/TextField";
 
 function App() {
   const handleGetStatus = async () => {
@@ -11,7 +13,6 @@ function App() {
       // Convert the response to JSON
       const data = await response.json();
       console.log('Status Response:', data);
-      alert(`Status Response: ${data.message}`);
     } catch (error) {
       console.error('Error fetching status:', error);
     }
@@ -37,15 +38,28 @@ function App() {
 
   const moveForward = async () => { 
     try {
+      // TESTING DATA, in the form of a dictionary 
+      const testData = {
+        distance: Number(valueForward) //convert string to int
+      };
+      if (!testData.distance) {
+        alert("Please enter a valid distance!");
+        return;
+      }
+
+      console.log('sending forward:', valueForward, ' meters');
+
+
       // Post to moveForward
       const response = await fetch('http://localhost:5001/forward', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json'
-        }
+        },
+        body: JSON.stringify(testData) // change into a JSON to use in the Post Request 
       }); 
 
-      console.log("forward  called")
+      console.log("forward called")
       const data = await response.json();
       console.log('Navigate Response:', data);
     } catch (error) {
@@ -55,10 +69,19 @@ function App() {
 
   const moveBackward = async () => { 
     try {
+      const testData = {
+        distance: Number(valueBackward) //convert string to int
+      };
+      if (!testData.distance) {
+        alert("Please enter a valid distance!");
+        return;
+      }
+
       const response = await fetch('http://localhost:5001/backward', {
         method: 'POST',
         headers: {
-          'Content-Type': 'application/json'
+          'Content-Type': 'application/json',
+          'body': testData
         }
       }); 
 
@@ -70,54 +93,130 @@ function App() {
     }
   }
 
-  const moveLeft = async () => { 
-    try {
-      
-      const response = await fetch('http://localhost:5001/left', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json'
-        }
-      }); 
+  const [valueForward, setForwardValue] = useState("");
 
-      console.log("left called")
-      const data = await response.json();
-      console.log('Navigate Response:', data);
-    } catch (error) {
-      console.error('Error fetching left:', error);
-    }
+  const handleForwardChange = (event) => {
+    setForwardValue(event.target.value)
+  }
+  /*
+  event is the event object provided by the onChange handler.
+  event.target refers to the input element that triggered the event.
+  event.target.value contains the current text entered by the user.
+  */
+
+  const [valueBackward, setBackwardValue] = useState("");
+
+  const handleBackwardChange = (event) => {
+    setBackwardValue(event.target.value)
   }
 
-  const moveRight = async () => { 
+  const rotateLeft = async () => { 
     try {
-      // Post to moveright
-      const response = await fetch('http://localhost:5001/right', {
+      const testData = {
+        distance: Number(valueBackward) //convert string to int
+      };
+      if (!testData.distance) {
+        alert("Please enter a valid distance!");
+        return;
+      }
+
+      const response = await fetch('http://localhost:5001/backward', {
         method: 'POST',
         headers: {
-          'Content-Type': 'application/json'
+          'Content-Type': 'application/json',
+          'body': testData
         }
       }); 
 
-      console.log("right  called")
+      console.log("backward  called")
       const data = await response.json();
       console.log('Navigate Response:', data);
     } catch (error) {
-      console.error('Error fetching foward:', error);
+      console.error('Error fetching backward:', error);
     }
   }
 
   return (
     <>
-      <div className="title"> RoboControl </div>
+      <div className="title"> Robot Control System</div>
+      <div className="container">
+        <div className="column">
+          <h2>Status</h2>
+          <Button onClick={handleGetStatus} variant="outlined">
+            Get Status
+          </Button>
+        </div>
 
-      <div className="controls"> 
-        <Button onClick={handleGetStatus} variant="outlined"> Get Status </Button>
-        <Button onClick={handleNavigate} variant="outlined"> Relocate (does not work) </Button>
-        <Button onClick={moveForward} variant="outlined"> Move Forward </Button>
-        <Button onClick={moveBackward} variant="outlined"> Move Backward </Button>
-        <Button onClick={moveLeft} variant="outlined"> Move Left </Button>
-        <Button onClick={moveRight} variant="outlined"> Move Right </Button>
-      </div> 
+        <div className="column">
+          <h2>Navigation</h2>
+          <Button onClick={handleNavigate} variant="outlined">
+            Relocate
+          </Button>
+        </div>
+
+        <div className="column">
+          <h2>Controls</h2>
+          <div className = "attached"> 
+            <Button onClick={moveForward} variant="outlined">
+              Move Forwards
+            </Button>
+            <TextField 
+              id="outlined-basic" 
+              label="distance" 
+              variant="outlined" 
+              size="small"
+              value={valueForward}
+              onChange={handleForwardChange}
+              sx={{
+                "& .MuiOutlinedInput-root": {
+                  "& fieldset": {
+                    borderColor: "beige", // Default border color
+                  },
+                }, 
+                "& .MuiInputLabel-root": {
+                    color: "grey", // Default label color
+                },
+                "& .MuiInputBase-input": {
+                    color: "beige", // Change the text color
+                  },
+              }} 
+            />
+          </div> 
+          <div className = "attached"> 
+            <Button onClick={moveBackward} variant="outlined">
+              Move Backward
+            </Button>
+            <TextField 
+              id="outlined-basic" 
+              label="distance" 
+              variant="outlined" 
+              size="small"
+              value={valueBackward}
+              onChange={handleBackwardChange}
+              sx={{
+                  "& .MuiOutlinedInput-root": {
+                    "& fieldset": {
+                      borderColor: "beige", // Default border color
+                    },
+                  },
+                  "& .MuiInputLabel-root": {
+                    color: "grey", // Default label color
+                  },
+                  "& .MuiInputBase-input": {
+                    color: "beige", // Change the text color
+                  },
+                }} 
+            />
+          </div>
+          <div className="attached"> 
+            <Button variant="outlined">
+              Rotate Left
+            </Button>
+          </div>
+          
+        </div>
+      </div>
+
       
     </>
   ) 

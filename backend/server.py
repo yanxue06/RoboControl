@@ -26,9 +26,7 @@ def navigate():
 def forward(): 
     print("Status endpoint hit")
 
-    print({'message': request.get_json()})
-
-    commands.move_forward()
+    commands.move_forward(request.get_json().get('distance')) #this inside should be the user sent data 
     
     return jsonify({"message": "forward command sent"})
 
@@ -38,21 +36,6 @@ def backward():
 
     commands.move_backward()
     return jsonify({"message": "backward command sent"})
-
-@app.route('/left', methods=['POST'])
-def keft(): 
-    print("Status endpoint hit")
-
-    commands.move_left()
-    return jsonify({"message": "forward left sent"})
-
-
-@app.route('/right', methods=['POST'])
-def right(): 
-    print("Status endpoint hit")
-
-    commands.move_right()
-    return jsonify({"message": "right command sent"})
 
 
 if __name__ == '__main__':
