@@ -3,6 +3,8 @@ import './App.css'
 import Button from '@mui/material/Button';
 import TextField from "@mui/material/TextField";
 
+//TO ACTIVATE THE ENV: source env/bin/activate
+
 function App() {
 
   // STATUS 
@@ -19,6 +21,32 @@ function App() {
       console.error('Error fetching status:', error);
     }
   };
+
+  const handleGetLocation = async () => {
+    try {
+      // Returns a promise, which comes to a Response object.
+      const response = await fetch('http://localhost:5001/location');
+      console.log("get location called"); 
+
+      // Convert the response to JSON
+      const data = await response.json();
+      console.log('Status Response:', data);
+    } catch (error) {
+      console.error('Error fetching status:', error);
+    }
+  };
+
+  const handleGetBattery = async () => { 
+    try {
+      const response = await fetch('http://localhost:5001/battery')
+      console.log("get battery called")
+      // Convert the response to JSON
+      const data = await response.json();
+      console.log('Status Response:', data);
+    } catch (error) {
+      console.error('Error fetching status:', error);
+    }
+  }
 
   // NAVIGATE 
   const handleNavigate = async () => {
@@ -117,16 +145,16 @@ function App() {
   }
 
   //ROTATE
-  const [valueAngle, setAngleValue] = useState("");
+  const [valueAngleLeft, setAngleValue] = useState("");
 
-  const handleAngleChange = (event) => {
+  const handleAngleLeftChange = (event) => {
     setAngleValue(event.target.value)
   }
 
   const rotateLeft = async () => { 
     try {
       const testData = {
-        angle: Number(valueAngle) //convert string to int
+        angle: Number(valueAngleLeft) //convert string to int
       };
       if (!testData.angle) {
         alert("Please enter a valid angle in degrees!");
@@ -149,6 +177,38 @@ function App() {
     }
   }
 
+  const [valueAngleRight, setAngleRightValue] = useState("");
+
+  const handleAngleRightChange= (event) => {
+    setAngleRightValue(event.target.value)
+  }
+
+  const rotateRight = async () => { 
+    try {
+      const testData = {
+        angle: Number(valueAngleRight) //convert string to int
+      };
+      if (!testData.angle) {
+        alert("Please enter a valid angle in degrees!");
+        return;
+      }
+
+      const response = await fetch('http://localhost:5001/rotateRight', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        }, 
+        body: JSON.stringify(testData)
+      }); 
+
+      console.log("rotate left called")
+      const data = await response.json();
+      console.log('Navigate Response:', data);
+    } catch (error) {
+      console.error('Error fetching backward:', error);
+    }
+  }
+
   return (
     <>
       <div className="title"> Robot Control System</div>
@@ -156,7 +216,13 @@ function App() {
         <div className="column">
           <h2>Status</h2>
           <Button onClick={handleGetStatus} variant="outlined">
-            Get Status
+            Get General Info
+          </Button>
+          <Button onClick={handleGetLocation} variant="outlined">
+            Get Location 
+          </Button>
+          <Button onClick={handleGetBattery} variant="outlined">
+            Get Battery 
           </Button>
         </div>
 
@@ -232,8 +298,8 @@ function App() {
               label="angle" 
               variant="outlined" 
               size="small"
-              value={valueAngle}
-              onChange={handleAngleChange}
+              value={valueAngleLeft}
+              onChange={handleAngleLeftChange}
               sx={{
                   "& .MuiOutlinedInput-root": {
                     "& fieldset": {
@@ -249,7 +315,34 @@ function App() {
                   width: "150px"
                 }} 
               />
+          </div>
 
+          <div className="attached"> 
+            <Button onClick={rotateRight} variant="outlined" sx={{width: "11rem"}}>
+              Rotate Right
+            </Button>
+            <TextField 
+              id="outlined-basic" 
+              label="angle" 
+              variant="outlined" 
+              size="small"
+              value={valueAngleRight}
+              onChange={handleAngleRightChange}
+              sx={{
+                  "& .MuiOutlinedInput-root": {
+                    "& fieldset": {
+                      borderColor: "beige", // Default border color
+                    },
+                  },
+                  "& .MuiInputLabel-root": {
+                    color: "grey", // Default label color
+                  },
+                  "& .MuiInputBase-input": {
+                    color: "beige", // Change the text color
+                  },
+                  width: "150px"
+                }} 
+              />
           </div>
           
         </div>

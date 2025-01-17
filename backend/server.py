@@ -6,19 +6,32 @@ app = Flask(__name__)
 
 CORS(app) #ensure correct port is requested 
 
-@app.route('/status', methods=['GET'])
+@app.route('/status', methods=['GET']) #useful to tell us what map is currently in use 
 def status(): 
     print("Status endpoint hit") 
 
     commands.get_status()
     return jsonify({"message": "Got status successfully"})
 
+@app.route('/location', methods=['GET']) #useful to tell us what map is currently in use 
+def location(): 
+    print("Status endpoint hit") 
 
-@app.route('/navigate', methods=['POST'])
+    commands.get_location()
+    return jsonify({"message": "Got location successfully"})
+
+@app.route('/battery', methods=['GET']) #useful to tell us what map is currently in use 
+def battery(): 
+    print("Status endpoint hit") 
+
+    commands.get_battery()
+    return jsonify({"message": "Got battery successfully"})
+
+@app.route('/navigate', methods=['POST']) #might need a map 
 def navigate(): 
     print("Status endpoint hit")
 
-    commands.navigate()
+    commands.relocate()
     return jsonify({"message": "Navigate command sent"})
 
 
@@ -45,6 +58,14 @@ def rotate_left():
     commands.rotate_left(request.get_json().get('angle'))
 
     return jsonify({"message": "backward command sent"})
+
+@app.route('/rotateRight', methods=['POST'])
+def rotate_right(): 
+    print("Status endpoint hit")
+
+    commands.rotate_right(request.get_json().get('angle'))
+
+    return jsonify({"message": "Right command sent"})
 
 
 if __name__ == '__main__':

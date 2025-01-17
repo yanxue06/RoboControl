@@ -32,9 +32,9 @@ def get_status():
     except Exception as e: 
         print(f"Error: {e}")
 
-def navigate(): 
+def get_location(): 
     try: 
-        PORT = 19205
+        PORT = 19204
         
         s = socket.socket()  
         print("succesfully created Socket")
@@ -42,21 +42,28 @@ def navigate():
         s.connect((ROBOT_IP, PORT))
         print(f"Connected to the robot at {ROBOT_IP}:{PORT}")
 
-        # dictionary
-        # data = { 
-        #     "x":10.0,   
-        #     "y":3.0,
-        #     "angle":0
-        # }
-        # should directly be able to steralize this data 
+        s.send(b"\x5A\x01\x00\x01\x00\x00\x00\x00\x03\xEC\x00\x00\x00\x00\x00\x00")
+       
+        response = s.recv(1024)
+        print(f"response: {response}")
 
-        #try to do manual entering later... 
-        s.send(
-            b"\x5A\x01\x00\x01\x00\x00\x00\x1C\x07\xD2\x00\x00\x00\x00\x00\x00"
-            b"\x7B\x22\x78\x22\x3A\x31\x30\x2E\x30\x2C\x22\x79\x22\x3A\x33\x2E\x30"
-            b"\x2C\x22\x61\x6E\x67\x6C\x65\x22\x3A\x30\x7D"
-        )
+        s.close() 
+
+    except Exception as e: 
+        print(f"Error: {e}")    
+
+def get_battery(): 
+    try: 
+        PORT = 19204
         
+        s = socket.socket()  
+        print("succesfully created Socket")
+        # connecting to robot 
+        s.connect((ROBOT_IP, PORT))
+        print(f"Connected to the robot at {ROBOT_IP}:{PORT}")
+
+        s.send(b"\x5A\x01\x00\x01\x00\x00\x00\x00\x03\xEF\x00\x00\x00\x00\x00\x00")
+       
         response = s.recv(1024)
         print(f"response: {response}")
 
@@ -173,7 +180,7 @@ def rotate_left(angle):
         # 7B 22 61 6E 67 6C 65 22 3A 33 2E 31 34 2C 22 76 
         # 77 22 3A 31 2E 36 7D
 
-        data = {"angle": math.radians(angle), "vw": 0.5}
+        data = {"angle": math.radians(angle), "vw": 1.5}
         payload_bytes = json.dumps(data, separators=(',', ':')).encode('utf-8')
         length_byte = len(payload_bytes)  # e.g. 28
 
@@ -195,6 +202,55 @@ def rotate_left(angle):
 
         #try to receive the message
         response = s.recv(1024)
+        print(response)
+
+        s.close() 
+
+        return response
+     
+    except Exception as e: 
+        print(f"Error: {e}")
+
+
+def rotate_right(angle): 
+    try: 
+
+        PORT = 19206
+
+        s = socket.socket()  
+        print("succesfully created Socket")
+        # connecting to robot 
+        s.connect((ROBOT_IP, PORT))
+        print(f"Connected to the robot at {ROBOT_IP}:{PORT}")
+
+        # {"angle":3.14,"vw":1.6}
+        # // rotate 3.14 rad with rotation speed 1.6rad/s
+        # 5A 01 00 01 00 00 00 17 0B F0 00 00 00 00 00 00 
+        # 7B 22 61 6E 67 6C 65 22 3A 33 2E 31 34 2C 22 76 
+        # 77 22 3A 31 2E 36 7D
+
+        data = {"angle": math.radians(angle), "vw": -1.5}
+        payload_bytes = json.dumps(data, separators=(',', ':')).encode('utf-8')
+        length_byte = len(payload_bytes)  # e.g. 28
+
+        # Convert the header into a mutable bytearray
+        header_array = bytearray(b"\x5A\x01\x00\x01\x00\x00\x00\x17\x0B\xF0\x00\x00\x00\x00\x00\x00")
+        header_array[7] = length_byte    # set the 8th byte to the actual length
+
+        message = bytes(header_array) + payload_bytes
+        s.send(message)
+
+        
+        print(f"sent message to move {angle} degrees")
+
+        # b"": Indicates a byte string (raw binary data).
+        # \x: Specifies a single byte in hexadecimal format.
+        # last few zeroes are reserved area
+        # 03 E8 is for the API number / message type (1000 is 0x03E8) 
+        # see "API introduction for what these mean"
+
+        #try to receive the message
+        response = s.recv(1024) #max 1024 bytes 
         print(response)
 
         s.close() 
