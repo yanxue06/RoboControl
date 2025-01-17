@@ -27,13 +27,26 @@ def battery():
     commands.get_battery()
     return jsonify({"message": "Got battery successfully"})
 
-@app.route('/navigate', methods=['POST']) #might need a map 
-def navigate(): 
+@app.route('/relocate', methods=['POST']) #might need a map 
+def relocate(): 
     print("Status endpoint hit")
 
     commands.relocate()
-    return jsonify({"message": "Navigate command sent"})
+    return jsonify({"message": "relocate command sent"})
 
+@app.route('/soundPlay', methods=['POST']) 
+def soundPlay(): 
+    print("Status endpoint hit")
+
+    commands.soundPlay()
+    return jsonify({"message": "sound command sent"})
+
+@app.route('/soundPause', methods=['POST']) 
+def navigate(): 
+    print("Status endpoint hit")
+
+    commands.soundPause()
+    return jsonify({"message": "sound command sent"})
 
 @app.route('/forward', methods=['POST'])
 def forward(): 

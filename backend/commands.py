@@ -4,6 +4,8 @@ import math
 
 ROBOT_IP = "192.168.9.201"
 
+# status 
+
 def get_status(): 
     try: 
         PORT = 19204
@@ -71,6 +73,80 @@ def get_battery():
 
     except Exception as e: 
         print(f"Error: {e}")    
+
+# Control 
+
+def relocate(): 
+    print("not yet done...")
+
+def soundPlay(): 
+    #other API port: 19210...
+    try: 
+        PORT = 19210
+
+        s = socket.socket()
+        print("succesfully created Socket")
+
+        s.connect((ROBOT_IP, PORT))
+        print(f"Connected to the robot at {ROBOT_IP}:{PORT}")
+        
+        data = {"name":"collision","loop":False}
+        payload_bytes = json.dumps(data, separators=(',', ':')).encode('utf-8')
+        length_byte = len(payload_bytes)
+
+        # Convert the header into a mutable bytearray
+        header_array = bytearray(b'\x5A\x01\x00\x01\x00\x00\x00\x20\x17\x70\x00\x00\x00\x00\x00\x00') 
+        header_array[7] = length_byte   # set the 8th byte to the actual length, can only do this with an array
+
+        message = bytes(header_array) + payload_bytes
+        s.send(message)
+
+        print("send message")
+        #try to receive the message
+        response = s.recv(1024)
+        print(response)
+
+        s.close() 
+
+        return response
+    except Exception as e: 
+        print(f"Error: {e}")
+
+
+def soundPause(): 
+    #other API port: 19210...
+    try: 
+        PORT = 19210
+
+        s = socket.socket()
+        print("succesfully created Socket")
+
+        s.connect((ROBOT_IP, PORT))
+        print(f"Connected to the robot at {ROBOT_IP}:{PORT}")
+        
+        data = {"name":"collision","loop":False}
+        payload_bytes = json.dumps(data, separators=(',', ':')).encode('utf-8')
+        length_byte = len(payload_bytes)
+
+        # Convert the header into a mutable bytearray
+        header_array = bytearray(b'\x5A\x01\x00\x01\x00\x00\x00\x00\x17\x7A\x00\x00\x00\x00\x00\x00') 
+        header_array[7] = length_byte   # set the 8th byte to the actual length, can only do this with an array
+
+        message = bytes(header_array) + payload_bytes
+        s.send(message)
+
+        print("send message")
+        #try to receive the message
+        response = s.recv(1024)
+        print(response)
+
+        s.close() 
+
+        return response
+    except Exception as e: 
+        print(f"Error: {e}")
+
+# Navigation
 
 def move_forward(distance): 
     try: 
