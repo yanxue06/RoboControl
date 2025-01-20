@@ -48,25 +48,64 @@ function App() {
     }
   }
 
+
   // CONTROLS 
+
+  // RELOCATE IS A BAIT FUNCTION - JUST changes coords on the map for your robot USE ONLY IF CONFIDENT 
   const handleRelocate = async () => {
+
+    const data = { 
+      coordinates: valueCoordinates 
+    }
+
+    const pattern = /^\s*(-?\d+(\.\d+?)?)\s*,\s*(-?\d+(\.\d+?)?)\s*$/;
+
+    const matches = data.coordinates.match(pattern)
+
+    if (!matches) {
+      alert("Please enter valid coordinates!");
+      return;
+    }
+   
+    // Extract x and y from the matches
+    const x = parseFloat(matches[1]); // First number
+    const y = parseFloat(matches[3]); // Second number
+
+    console.log("x:", x, "y:", y);
+
+    
     try {
-      // Example POST to navigate
-      const response = await fetch('http://localhost:5001/relocate', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json'
-        }
-      }); 
+      // Example POST to navigate         
+        const response = await fetch('http://localhost:5001/relocate', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({   
+            'x': x, 
+            'y': y,
+          })
+          /*
+          {   json format --> good for info transmission 
+            "x": "12.5",
+            "y": "34.67"
+          }
+          */
+        }); 
 
       console.log("handle navigation called")
-      const data = await response.json();
-      console.log('relocate Response:', data);
+      const ba = await response.json();
+      console.log('relocate Response:', ba);
     } catch (error) {
       console.error('Error fetching relocate:', error);
     }
   };
 
+  const [valueCoordinates, setCoordinates] = useState("") 
+
+  const handleCoordinateChange = (event) => {
+    setCoordinates(event.target.value)
+  }
 
   const handleSoundPlay = async () => { 
     try { 
@@ -212,6 +251,7 @@ function App() {
 
   const rotateRight = async () => { 
     try {
+      // JS object
       const testData = {
         angle: Number(valueAngleRight) //convert string to int
       };
@@ -236,40 +276,113 @@ function App() {
     }
   }
 
+  async function charge() {  //trying new syntax for funzies
+    try {
+      //should have a preconfigured map of charging, so no need for extra data
+      await fetch('http://localhost:5001/charge', { 
+        method: 'POST', 
+        headers: { 
+          'Content-Type': 'application/json' //even though i am not transmitting any json data for this request
+        }
+      })
+
+    } catch (error) {
+      console.error('Error fetching charge:', error);
+    }
+  }
+
   return (
     <>
       <div className="title"> Robot Control System</div>
       <div className="container">
         <div className="column">
           <h2>Status</h2>
-          <Button onClick={handleGetStatus} variant="outlined">
+          <Button onClick={handleGetStatus} variant="outlined" className="shrink">
             Get General Info
           </Button>
-          <Button onClick={handleGetLocation} variant="outlined">
+          <Button onClick={handleGetLocation} variant="outlined" className="shrink">
             Get Location 
           </Button>
-          <Button onClick={handleGetBattery} variant="outlined">
+          <Button onClick={handleGetBattery} variant="outlined" className="shrink">
             Get Battery 
           </Button>
         </div>
 
         <div className="column">
           <h2>Control</h2> 
-          <Button onClick={handleRelocate} variant="outlined">
-            Relocate
+          <Button onClick={charge} variant="outlined" className="shrink">
+            Charge Robot
           </Button>
-          <Button onClick={handleSoundPlay} variant="outlined">
+          <div className = "attached"> 
+            <Button onClick={handleRelocate} variant="outlined" className="shrink">
+              Manual Relocate 
+            </Button>
+            <TextField 
+              id="outlined-basic" 
+              label="relocate to (x, y)" 
+              variant="outlined" 
+              size="small"
+              values={valueCoordinates}
+              onChange={handleCoordinateChange}
+              sx={{
+                "& .MuiOutlinedInput-root": {
+                  "& fieldset": {
+                    borderColor: "beige", // Default border color
+                  },
+                }, 
+                "& .MuiInputLabel-root": {
+                    color: "grey", // Default label color
+                },
+                "& .MuiInputBase-input": {
+                    color: "beige", // Change the text color
+                },
+                width: "150px"
+              }} 
+            />
+          </div>
+          <Button onClick={handleSoundPlay} variant="outlined" className="shrink">
             Play Sound
           </Button>
-          <Button onClick={handleSoundPause} variant="outlined">
+          <Button onClick={handleSoundPause} variant="outlined" className="shrink">
             Pause Sound 
           </Button>
+        
         </div>
 
         <div className="column">
           <h2>Navigation</h2>
           <div className = "attached"> 
-            <Button onClick={moveForward} variant="outlined" sx={{width: "11rem"}}>
+              <Button className = "shrink spcialshrink" onClick={navigate} variant="outlined" sx={{width: "11rem"}} > 
+                Controlled Navigation! 
+              </Button> 
+              <TextField
+                id="outlined-basic"
+                label="distance"
+                variant="outlined"
+                size="small"
+                value={valueNavigation}
+                onChange={handleNavigationChange}
+                sx={{
+                  "& .MuiOutlinedInput-root": {
+                    "& fieldset": {
+                      borderColor: "beige", // Default border color
+                    },
+                  }, 
+                  "& .MuiInputLabel-root": {
+                      color: "grey", // Default label color
+                  },
+                  "& .MuiInputBase-input": {
+                      color: "beige", // Change the text color
+                  },
+                  width: "150px"
+                }}
+              /> 
+          </div>
+
+
+
+          <div className = "attached"> 
+            <Button className="shrink specialshrink" onClick={moveForward} variant="outlined" sx={{width: "11rem"}} >
               Move Forwards
             </Button>
             <TextField 
@@ -296,7 +409,7 @@ function App() {
             />
           </div> 
           <div className = "attached"> 
-            <Button onClick={moveBackward} variant="outlined" sx={{width: "11rem"}}>
+            <Button onClick={moveBackward} variant="outlined" sx={{width: "11rem"}} className="shrink specialshrink" >
               Move Backward
             </Button>
             <TextField 
@@ -323,7 +436,7 @@ function App() {
               />
           </div>
           <div className="attached"> 
-            <Button onClick={rotateLeft} variant="outlined" sx={{width: "11rem"}}>
+            <Button onClick={rotateLeft} variant="outlined" sx={{width: "11rem"}} className="shrink specialshrink">
               Rotate Left
             </Button>
             <TextField 
@@ -351,7 +464,7 @@ function App() {
           </div>
 
           <div className="attached"> 
-            <Button onClick={rotateRight} variant="outlined" sx={{width: "11rem"}}>
+            <Button className="shrink specialshrink" onClick={rotateRight} variant="outlined" sx={{width: "11rem"}}>
               Rotate Right
             </Button>
             <TextField 
@@ -379,6 +492,7 @@ function App() {
           </div>
           
         </div>
+
       </div>
 
       

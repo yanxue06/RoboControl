@@ -27,11 +27,19 @@ def battery():
     commands.get_battery()
     return jsonify({"message": "Got battery successfully"})
 
+@app.route('/charge', methods=['POST']) 
+def charge(): 
+    commands.charge() 
+
+    return jsonify({"message": "chargin command called"})
+
 @app.route('/relocate', methods=['POST']) #might need a map 
 def relocate(): 
     print("Status endpoint hit")
-
-    commands.relocate()
+    data = request.get_json()
+    x = data.get('x')
+    y = data.get('y')
+    commands.relocate(x, y)
     return jsonify({"message": "relocate command sent"})
 
 @app.route('/soundPlay', methods=['POST']) 
@@ -42,7 +50,7 @@ def soundPlay():
     return jsonify({"message": "sound command sent"})
 
 @app.route('/soundPause', methods=['POST']) 
-def navigate(): 
+def soundPause(): 
     print("Status endpoint hit")
 
     commands.soundPause()

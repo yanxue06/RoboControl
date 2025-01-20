@@ -46,3 +46,16 @@
   display: flex;
   gap: 12px; 
 }
+
+@media only screen and (max-width: 900px) {
+  body {
+    .shrink {
+      padding: 2 4px
+    }
+
+    .specialShrink { 
+      min-width: auto
+    }
+  }
+
+}

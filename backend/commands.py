@@ -75,9 +75,51 @@ def get_battery():
     except Exception as e: 
         print(f"Error: {e}")    
 
+def charge(): 
+    PORT = 19206 #port of navigation APIs 
+    try: 
+        s = socket.socket() #creating a socket object to communicate with robot from client
+
+        s.connect((ROBOT_IP, PORT))
+        print(f"Connected to robot at {ROBOT_IP}:{PORT}") 
+
+        # NOW, go to chargin port 
+        data = {
+            "source_id": "SELF_POSITION",
+            "id": "CP3",
+            "max_speed": 0.3,
+            "max_wspeed": 0.3,
+            "max_wacc": 0.2,
+            "task_id": "12345"
+        }
+        
+        payload_bytes = json.dumps(data, separators=(',', ':')).encode('utf-8')
+        length_byte = len(payload_bytes)
+
+        # Convert the header into a mutable bytearray
+        header_array = bytearray(b'\x5A\x01\x00\x01\x00\x00\x00\x1C\x0B\xEB\x00\x00\x00\x00\x00\x00') 
+        header_array[7] = length_byte   # set the 8th byte to the actual length, can only do this with an array
+
+        message = bytes(header_array) + payload_bytes
+        s.send(message)
+
+
+        response = s.recv(1024)
+        print(f"response: {response}")
+
+        # Parse the response header and payload
+        header = response[:16]  # First 16 bytes are the header
+        payload = response[16:]  # Remaining bytes are the JSON payload
+        print(f"Response header: {header}")
+        print(f"Response payload: {payload.decode('utf-8')}")
+
+    except Exception as e: 
+        print(f"Error: {e}")
+
+
 # Control 
 
-def relocate(): 
+def relocate(x,  y): 
     PORT = 19205
     
     try: 
@@ -87,10 +129,9 @@ def relocate():
         s.connect((ROBOT_IP, PORT))
         print(f"Connected to the robot at {ROBOT_IP}:{PORT}")
 
-
         data = {
-            "x": 22,
-            "y": 17,
+            "x": x,
+            "y": y,
             "angle": 0.0,
             "length": 1.0,
             "home": False
@@ -112,6 +153,8 @@ def relocate():
         # Parse the response header and payload
         header = response[:16]  # First 16 bytes are the header
         payload = response[16:]  # Remaining bytes are the JSON payload
+
+
         print(f"Response header: {header}")
         print(f"Response payload: {payload.decode('utf-8')}")
 
