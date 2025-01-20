@@ -48,11 +48,11 @@ function App() {
     }
   }
 
-  // NAVIGATE 
-  const handleNavigate = async () => {
+  // CONTROLS 
+  const handleRelocate = async () => {
     try {
       // Example POST to navigate
-      const response = await fetch('http://localhost:5001/navigate', {
+      const response = await fetch('http://localhost:5001/relocate', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json'
@@ -61,13 +61,40 @@ function App() {
 
       console.log("handle navigation called")
       const data = await response.json();
-      console.log('Navigate Response:', data);
+      console.log('relocate Response:', data);
     } catch (error) {
-      console.error('Error fetching navigate:', error);
+      console.error('Error fetching relocate:', error);
     }
   };
 
-  //CONTROLS 
+
+  const handleSoundPlay = async () => { 
+    try { 
+      const response = await fetch('http://localhost:5001/soundPlay', {
+        method: 'POST', 
+        headers: { 
+          'Content-Type': 'application/json'
+        }
+      }); 
+    } catch (error) {
+      console.error('Error fetching relocate:', error); 
+    }
+  } 
+   
+  const handleSoundPause = async () => { 
+    try { 
+      const response = await fetch('http://localhost:5001/soundPause', {
+        method: 'POST', 
+        headers: { 
+          'Content-Type': 'application/json'
+        }
+      });
+    } catch (error) {
+      console.error('Error fetching relocate:', error); 
+    }
+  }
+  
+  //NAVIGATE 
   
   //FORWARD 
   const moveForward = async () => { 
@@ -228,8 +255,14 @@ function App() {
 
         <div className="column">
           <h2>Control</h2> 
-          <Button onClick={handleNavigate} variant="outlined">
+          <Button onClick={handleRelocate} variant="outlined">
             Relocate
+          </Button>
+          <Button onClick={handleSoundPlay} variant="outlined">
+            Play Sound
+          </Button>
+          <Button onClick={handleSoundPause} variant="outlined">
+            Pause Sound 
           </Button>
         </div>
 

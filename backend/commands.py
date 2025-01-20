@@ -7,33 +7,31 @@ ROBOT_IP = "192.168.9.201"
 # status 
 
 def get_status(): 
-    try: 
-        PORT = 19204
+    PORT = 19204
 
-        s = socket.socket()  
-        print("succesfully created Socket")
-        # connecting to robot 
+    try:
+        s = socket.socket()
         s.connect((ROBOT_IP, PORT))
         print(f"Connected to the robot at {ROBOT_IP}:{PORT}")
 
-        #message to send: "5A 01 00 01 00 00 00 00 03 E8 00 00 00 00 00 00"
+        # Send the get-status command
         s.send(b"\x5A\x01\x00\x01\x00\x00\x00\x00\x03\xE8\x00\x00\x00\x00\x00\x00")
         print("sent message")
-        # b"": Indicates a byte string (raw binary data).
-        # \x: Specifies a single byte in hexadecimal format.
-        # last few zeroes are reserved area
-        # 03 E8 is for the API number / message type (1000 is 0x03E8) 
-        # see "API introduction for what these mean"
 
-        #try to receive the message
-        response = s.recv(1024)
-        s.close() 
+        response = s.recv(4096)
+        json_bytes = response[16:] 
+        json_str = json_bytes.decode("utf-8", errors="ignore")
+        
+        print(json_str)
+        
+        s.close()
 
-        return response 
-
-    except Exception as e: 
+    except Exception as e:
         print(f"Error: {e}")
+        return None
 
+
+    
 def get_location(): 
     try: 
         PORT = 19204
@@ -47,7 +45,10 @@ def get_location():
         s.send(b"\x5A\x01\x00\x01\x00\x00\x00\x00\x03\xEC\x00\x00\x00\x00\x00\x00")
        
         response = s.recv(1024)
-        print(f"response: {response}")
+        json_bytes = response[16:]  # skip the 16-byte header
+
+        json_str = json_bytes.decode("utf-8", errors="ignore")  
+        print("Decoded JSON snippet:", json_str)
 
         s.close() 
 
@@ -77,7 +78,45 @@ def get_battery():
 # Control 
 
 def relocate(): 
-    print("not yet done...")
+    PORT = 19205
+    
+    try: 
+        s = socket.socket()  
+        print("succesfully created Socket")
+        # connecting to robot 
+        s.connect((ROBOT_IP, PORT))
+        print(f"Connected to the robot at {ROBOT_IP}:{PORT}")
+
+
+        data = {
+            "x": 22,
+            "y": 17,
+            "angle": 0.0,
+            "length": 1.0,
+            "home": False
+        }
+
+        payload_bytes = json.dumps(data, separators=(',', ':')).encode('utf-8')
+        length_byte = len(payload_bytes)
+
+        # Convert the header into a mutable bytearray
+        header_array = bytearray(b'\x5A\x01\x00\x01\x00\x00\x00\x1C\x07\xD2\x00\x00\x00\x00\x00\x00') 
+        header_array[7] = length_byte   # set the 8th byte to the actual length, can only do this with an array
+
+        message = bytes(header_array) + payload_bytes
+        s.send(message)
+
+        response = s.recv(1024)
+        print(f"response: {response}")
+
+        # Parse the response header and payload
+        header = response[:16]  # First 16 bytes are the header
+        payload = response[16:]  # Remaining bytes are the JSON payload
+        print(f"Response header: {header}")
+        print(f"Response payload: {payload.decode('utf-8')}")
+
+    except Exception as e: 
+        print(f"Error: {e}")   
 
 def soundPlay(): 
     #other API port: 19210...
