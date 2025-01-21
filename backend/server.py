@@ -56,6 +56,24 @@ def soundPause():
     return jsonify({"message": "sound command sent"})
 
 # NAVIGATION !! 
+
+@app.route('/dNav', methods = ['POST'])  #dNav is an endpoint, and it is a post method 
+def dNav(): 
+    # get json payload from body of post request
+    data = request.get_json() 
+    print(f"data: {data}")
+    commands.dNav(data) 
+
+    return jsonify({"message": "dNav command sent"})
+
+@app.route('/getTaskStatus', methods="GET")
+def TaskStatus():
+    print("status endpoint hit")
+    commands.getTaskStatus() 
+    
+    return jsonify({"message": "sound command sent"})
+
+
 @app.route('/forward', methods=['POST'])
 def forward(): 
     print("Status endpoint hit")

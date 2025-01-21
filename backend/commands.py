@@ -85,7 +85,7 @@ def charge():
 
         # NOW, go to chargin port 
         data = {
-            "source_id": "SELF_POSITION",
+            # "source_id": "SELF_POSITION",
             "id": "CP3",
             "max_speed": 0.3,
             "max_wspeed": 0.3,
@@ -229,6 +229,66 @@ def soundPause():
         print(f"Error: {e}")
 
 # Navigation
+
+def dNav(stations): 
+    # body in as a dictionary (flask did json to arry of dictionary conversion for me)
+
+    try: 
+        PORT = 19206
+
+        s = socket.socket() 
+        print("created socket")
+
+        s.connect((ROBOT_IP, PORT))
+        print(f"Connected to the robot at {ROBOT_IP}:{PORT}")
+        
+        move_task_list = [] 
+        print("Type of stations:", type(stations))
+        print(stations)
+
+
+        for i, station in enumerate(stations): 
+            print("Stations:", stations)
+
+            # for every station, append to move_task_list the 
+            move_task_list.append({"id": station["id"], "source_id": stations[i-1]["id"], "task_id": str(i+1000)}) 
+
+        payload_dict = {"move_task_list": move_task_list}
+        payload_bytes = json.dumps(payload_dict, separators=(',', ':')).encode('utf-8')
+        length_byte = len(payload_bytes)
+
+        print("Payload:", payload_bytes.decode('utf-8'))  # Debug: Print the JSON being sent
+
+        # Convert the header into a mutable bytearray
+        header_array = bytearray(b"\x5A\x01\x00\x01\x00\x00\x00\x1E\x0B\xFA\x00\x00\x00\x00\x00\x00") 
+        header_array[7] = length_byte     # set the 8th byte to the actual length, can only do this with an array
+
+        message = bytes(header_array) + payload_bytes
+        s.send(message)
+
+        print("sent message")
+
+        response = s.recv(1024) 
+
+        json_bytes = response[16:] 
+        print(json_bytes.decode("utf-8", errors="ignore"))
+    except Exception as e: 
+        print(f"error {e}")
+
+def getTaskStatus(): 
+    try: 
+        PORT = 19204
+        
+        s = socket.socket()
+        s.connect((ROBOT_IP, PORT))
+
+        s.send(b"\x5A\x01\x00\x01\x00\x00\x00\x00\x04\x56\x00\x00\x00\x00\x00\x00")
+
+        response = s.recv(1024) 
+        print(f"response: {response}")
+    except Exception as e: 
+
+        print(f"error while getting status: {e}")
 
 def move_forward(distance): 
     try: 
