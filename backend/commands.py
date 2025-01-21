@@ -275,6 +275,17 @@ def dNav(stations):
     except Exception as e: 
         print(f"error {e}")
 
+def getNavStatus(): 
+    PORT = 19204 
+
+    s = socket.socket() 
+    s.connect(ROBOT_IP, PORT)
+
+    s.send(b"\x5A\x01\x00\x01\x00\x00\x00\x00\x03\xFC\x00\x00\x00\x00\x00\x00")
+
+    print(f"response: {s.recv(1024)}")
+
+
 def getTaskStatus(): 
     try: 
         PORT = 19204
