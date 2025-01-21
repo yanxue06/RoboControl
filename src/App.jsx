@@ -135,7 +135,64 @@ function App() {
   
   //NAVIGATE 
   
+  // Designates Navigation 
+
+  async function Dnavigate() { 
+    try { 
+      /* valueDNav is current value */ 
+      
+      const pattern = /\b[A-Z]+[0-9]+(?=,)/g;
+        
+      const matches = valueDNav.match(pattern);
+      
+      const data = []; // array of objects 
+
+      if (matches) { 
+        console.log("found matches")
+        for (let i = 0; i < matches.length; ++i) { 
+          data.push({
+            id: i + 1000, // Unique ID for each destination
+            name: match,   // The match value (e.g., LM1, LM2)
+          });
+        }
+      }
+
+      jsonPayload = json.stringify(data); 
+
+      /* ex. jsonPayload
+        [
+          {"id":1,"name":"LM1"},
+          {"id":2,"name":"LM2"},
+          {"id":3,"name":"DN1"},
+          {"id":4,"name":"WM3"}
+        ]
+      */
+      
+       response = await fetch('http://localhost:5001/dNav', {
+        method: 'POST', 
+        headers: { 
+          'Content-Type': 'application/json'
+        }, 
+        body: jsonPaylaod
+       }) 
+
+       console.log("forward called")
+       
+       console.log('Navigate Response:', response);
+
+     } catch (error) {
+       console.error('Error fetching foward:', error);
+     }
+  }
+
+  const handleDNavChange = (event) => {
+    DNavSetValue(event.target.value)
+  }
+
+  const [valueDNav, DNavSetValue] = useState(""); 
+
   //FORWARD 
+
   const moveForward = async () => { 
     try {
       // TESTING DATA, in the form of a dictionary 
@@ -158,6 +215,12 @@ function App() {
         body: JSON.stringify(testData) // change into a JSON to use in the Post Request 
       }); 
 
+      /* JSONify looks like:  
+        {
+          "distance": 10
+        }
+      */ 
+     
       console.log("forward called")
       const data = await response.json();
       console.log('Navigate Response:', data);
@@ -351,17 +414,22 @@ function App() {
 
         <div className="column">
           <h2>Navigation</h2>
+
+          {/*The designated path navigation is to send a set of station sequences to the robot, 
+          and the robot will navigate according to this sequence (no longer planning its own path), 
+          without stopping at intermediate sites.*/}
+
           <div className = "attached"> 
-              <Button className = "shrink spcialshrink" onClick={navigate} variant="outlined" sx={{width: "11rem"}} > 
-                Controlled Navigation! 
+              <Button className = "shrink specialShrink" onClick={Dnavigate} variant="outlined" sx={{width: "11rem"}} > 
+                Bot Navigation
               </Button> 
               <TextField
                 id="outlined-basic"
-                label="distance"
+                label="LM1, LM2, ..."
                 variant="outlined"
                 size="small"
-                value={valueNavigation}
-                onChange={handleNavigationChange}
+                value={valueDNav}
+                onChange={handleDNavChange}
                 sx={{
                   "& .MuiOutlinedInput-root": {
                     "& fieldset": {
