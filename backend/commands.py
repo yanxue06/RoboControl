@@ -316,7 +316,7 @@ def dNav(stations):
             if status == 4: 
                 break
             else: 
-                print(f"curren status: {status}")
+                print(f"current status: {status}")
             # add a delay so my calls arent too often 
             time.sleep(0.8)
 
