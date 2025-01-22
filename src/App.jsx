@@ -378,218 +378,224 @@ function App() {
     
   return (
     <>
-      <div className="title"> Robot Control System</div>
-      <div className="container">
-        <div className="column">
-          <h2>Status</h2>
-          <Button onClick={handleGetStatus} variant="outlined">
-            Get General Info
-          </Button>
-          <Button onClick={handleGetLocation} variant="outlined">
-            Get Location 
-          </Button>
-          <Button onClick={handleGetBattery} variant="outlined">
-            Get Battery 
-          </Button>
-        </div>
+      <div className="title"> Robot Control System </div>
+        <div className = "appContainer"> 
+          <div className = "leftPanel"> 
+            <div className = "miniContainer">
+              <div className = "column">
+                <h2>Status</h2>
+                <Button onClick={handleGetStatus} variant="outlined">
+                  Get General Info
+                </Button>
+                <Button onClick={handleGetLocation} variant="outlined">
+                  Get Location 
+                </Button>
+                <Button onClick={handleGetBattery} variant="outlined">
+                  Get Battery 
+                </Button>
+              </div>
 
-        <div className="column">
-          <h2>Control</h2> 
-          <Button onClick={charge} variant="outlined">
-            Charge Robot
-          </Button>
-          <div className = "attached"> 
-            <Button onClick={handleRelocate} variant="outlined" >
-              Manual Relocate 
-            </Button>
-            <TextField 
-              id="outlined-basic" 
-              label="relocate to (x, y)" 
-              variant="outlined" 
-              size="small"
-              values={valueCoordinates}
-              onChange={handleCoordinateChange}
-              sx={{
-                "& .MuiOutlinedInput-root": {
-                  "& fieldset": {
-                    borderColor: "beige", // Default border color
-                  },
-                }, 
-                "& .MuiInputLabel-root": {
-                    color: "grey", // Default label color
-                },
-                "& .MuiInputBase-input": {
-                    color: "beige", // Change the text color
-                },
-                width: "150px"
-              }} 
-            />
-          </div>
-          <Button onClick={handleSoundPlay} variant="outlined" >
-            Play Sound
-          </Button>
-          <Button onClick={handleSoundPause} variant="outlined" >
-            Pause Sound 
-          </Button>
-        
-        </div>
+              <div className="column">
+                <h2>Control</h2> 
+                <Button onClick={charge} variant="outlined">
+                  Charge Robot
+                </Button>
+                <div className = "attached"> 
+                  <Button onClick={handleRelocate} variant="outlined" >
+                    Manual Relocate 
+                  </Button>
+                  <TextField 
+                    id="outlined-basic" 
+                    label="relocate to (x, y)" 
+                    variant="outlined" 
+                    size="small"
+                    values={valueCoordinates}
+                    onChange={handleCoordinateChange}
+                    sx={{
+                      "& .MuiOutlinedInput-root": {
+                        "& fieldset": {
+                          borderColor: "beige", // Default border color
+                        },
+                      }, 
+                      "& .MuiInputLabel-root": {
+                          color: "grey", // Default label color
+                      },
+                      "& .MuiInputBase-input": {
+                          color: "beige", // Change the text color
+                      },
+                      width: "150px"
+                    }} 
+                  />
+                </div>
+                <Button onClick={handleSoundPlay} variant="outlined" >
+                  Play Sound
+                </Button>
+                <Button onClick={handleSoundPause} variant="outlined" >
+                  Pause Sound 
+                </Button>
+              </div>
 
-        <div className="column">
-          <h2>Navigation</h2>
+            <div className="column">
+              <h2>Navigation</h2>
 
-          {/*The designated path navigation is to send a set of station sequences to the robot, 
-          and the robot will navigate according to this sequence (no longer planning its own path), 
-          without stopping at intermediate sites.*/}
+              {/*The designated path navigation is to send a set of station sequences to the robot, 
+              and the robot will navigate according to this sequence (no longer planning its own path), 
+              without stopping at intermediate sites.*/}
 
-          <div className = "attached"> 
-              <Button onClick={Dnavigate} variant="outlined" sx={{width: "11rem"}} > 
-                Bot Navigation
+              <div className = "attached"> 
+                  <Button onClick={Dnavigate} variant="outlined" sx={{width: "11rem"}} > 
+                    Bot Navigation
+                  </Button> 
+                  <TextField
+                    id="outlined-basic"
+                    label="LM1, LM2, ..."
+                    variant="outlined"
+                    size="small"
+                    value={valueDNav}
+                    onChange={handleDNavChange}
+                    sx={{
+                      "& .MuiOutlinedInput-root": {
+                        "& fieldset": {
+                          borderColor: "beige", // Default border color
+                        },
+                      }, 
+                      "& .MuiInputLabel-root": {
+                          color: "grey", // Default label color
+                      },
+                      "& .MuiInputBase-input": {
+                          color: "beige", // Change the text color
+                      },
+                      width: "150px"
+                    }}
+                  /> 
+              </div>
+              <Button  onClick={getNavStatus} variant="outlined" > 
+                Navigation Status 
               </Button> 
-              <TextField
-                id="outlined-basic"
-                label="LM1, LM2, ..."
-                variant="outlined"
-                size="small"
-                value={valueDNav}
-                onChange={handleDNavChange}
-                sx={{
-                  "& .MuiOutlinedInput-root": {
-                    "& fieldset": {
-                      borderColor: "beige", // Default border color
+              <Button conClick={getTaskStatus} variant="outlined"  > 
+                Task Status 
+              </Button> 
+
+              <div className = "attached"> 
+                <Button onClick={moveForward} variant="outlined" sx={{width: "11rem"}} >
+                  Move Forwards
+                </Button>
+                <TextField 
+                  id="outlined-basic" 
+                  label="distance" 
+                  variant="outlined" 
+                  size="small"
+                  value={valueForward}
+                  onChange={handleForwardChange}
+                  sx={{
+                    "& .MuiOutlinedInput-root": {
+                      "& fieldset": {
+                        borderColor: "beige", // Default border color
+                      },
+                    }, 
+                    "& .MuiInputLabel-root": {
+                        color: "grey", // Default label color
                     },
-                  }, 
-                  "& .MuiInputLabel-root": {
-                      color: "grey", // Default label color
-                  },
-                  "& .MuiInputBase-input": {
-                      color: "beige", // Change the text color
-                  },
-                  width: "150px"
-                }}
-              /> 
+                    "& .MuiInputBase-input": {
+                        color: "beige", // Change the text color
+                    },
+                    width: "150px"
+                  }} 
+                />
+              </div> 
+              <div className = "attached"> 
+                <Button onClick={moveBackward} variant="outlined" sx={{width: "11rem"}} className="shrink specialshrink" >
+                  Move Backward
+                </Button>
+                <TextField 
+                  id="outlined-basic" 
+                  label="distance" 
+                  variant="outlined" 
+                  size="small"
+                  value={valueBackward}
+                  onChange={handleBackwardChange}
+                  sx={{
+                      "& .MuiOutlinedInput-root": {
+                        "& fieldset": {
+                          borderColor: "beige", // Default border color
+                        },
+                      },
+                      "& .MuiInputLabel-root": {
+                        color: "grey", // Default label color
+                      },
+                      "& .MuiInputBase-input": {
+                        color: "beige", // Change the text color
+                      },
+                      width: "150px"
+                    }} 
+                  />
+              </div>
+              <div className="attached"> 
+                <Button onClick={rotateLeft} variant="outlined" sx={{width: "11rem"}} >
+                  Rotate Left
+                </Button>
+                <TextField 
+                  id="outlined-basic" 
+                  label="angle" 
+                  variant="outlined" 
+                  size="small"
+                  value={valueAngleLeft}
+                  onChange={handleAngleLeftChange}
+                  sx={{
+                      "& .MuiOutlinedInput-root": {
+                        "& fieldset": {
+                          borderColor: "beige", // Default border color
+                        },
+                      },
+                      "& .MuiInputLabel-root": {
+                        color: "grey", // Default label color
+                      },
+                      "& .MuiInputBase-input": {
+                        color: "beige", // Change the text color
+                      },
+                      width: "150px"
+                    }} 
+                  />
+              </div>
+
+              <div className="attached"> 
+                <Button onClick={rotateRight} variant="outlined" sx={{width: "11rem"}}>
+                  Rotate Right
+                </Button>
+                <TextField 
+                  id="outlined-basic" 
+                  label="angle" 
+                  variant="outlined" 
+                  size="small"
+                  value={valueAngleRight}
+                  onChange={handleAngleRightChange}
+                  sx={{
+                      "& .MuiOutlinedInput-root": {
+                        "& fieldset": {
+                          borderColor: "beige", // Default border color
+                        },
+                      },
+                      "& .MuiInputLabel-root": {
+                        color: "grey", // Default label color
+                      },
+                      "& .MuiInputBase-input": {
+                        color: "beige", // Change the text color
+                      },
+                      width: "150px"
+                    }} 
+                  />
+              </div>
+                
+            </div> 
           </div>
-          <Button  onClick={getNavStatus} variant="outlined" sx={{width: "11rem"}} > 
-            Navigation Status 
-          </Button> 
-          <Button conClick={getTaskStatus} variant="outlined" sx={{width: "11rem"}} > 
-            Task Status 
-          </Button> 
-
-
-
-          <div className = "attached"> 
-            <Button onClick={moveForward} variant="outlined" sx={{width: "11rem"}} >
-              Move Forwards
-            </Button>
-            <TextField 
-              id="outlined-basic" 
-              label="distance" 
-              variant="outlined" 
-              size="small"
-              value={valueForward}
-              onChange={handleForwardChange}
-              sx={{
-                "& .MuiOutlinedInput-root": {
-                  "& fieldset": {
-                    borderColor: "beige", // Default border color
-                  },
-                }, 
-                "& .MuiInputLabel-root": {
-                    color: "grey", // Default label color
-                },
-                "& .MuiInputBase-input": {
-                    color: "beige", // Change the text color
-                },
-                width: "150px"
-              }} 
-            />
           </div> 
-          <div className = "attached"> 
-            <Button onClick={moveBackward} variant="outlined" sx={{width: "11rem"}} className="shrink specialshrink" >
-              Move Backward
-            </Button>
-            <TextField 
-              id="outlined-basic" 
-              label="distance" 
-              variant="outlined" 
-              size="small"
-              value={valueBackward}
-              onChange={handleBackwardChange}
-              sx={{
-                  "& .MuiOutlinedInput-root": {
-                    "& fieldset": {
-                      borderColor: "beige", // Default border color
-                    },
-                  },
-                  "& .MuiInputLabel-root": {
-                    color: "grey", // Default label color
-                  },
-                  "& .MuiInputBase-input": {
-                    color: "beige", // Change the text color
-                  },
-                  width: "150px"
-                }} 
-              />
+          <div className = "rightPanel"> 
+            <div className = "console"> 
+              <h1> Display Console </h1> 
+            </div> 
           </div>
-          <div className="attached"> 
-            <Button onClick={rotateLeft} variant="outlined" sx={{width: "11rem"}} >
-              Rotate Left
-            </Button>
-            <TextField 
-              id="outlined-basic" 
-              label="angle" 
-              variant="outlined" 
-              size="small"
-              value={valueAngleLeft}
-              onChange={handleAngleLeftChange}
-              sx={{
-                  "& .MuiOutlinedInput-root": {
-                    "& fieldset": {
-                      borderColor: "beige", // Default border color
-                    },
-                  },
-                  "& .MuiInputLabel-root": {
-                    color: "grey", // Default label color
-                  },
-                  "& .MuiInputBase-input": {
-                    color: "beige", // Change the text color
-                  },
-                  width: "150px"
-                }} 
-              />
-          </div>
-
-          <div className="attached"> 
-            <Button onClick={rotateRight} variant="outlined" sx={{width: "11rem"}}>
-              Rotate Right
-            </Button>
-            <TextField 
-              id="outlined-basic" 
-              label="angle" 
-              variant="outlined" 
-              size="small"
-              value={valueAngleRight}
-              onChange={handleAngleRightChange}
-              sx={{
-                  "& .MuiOutlinedInput-root": {
-                    "& fieldset": {
-                      borderColor: "beige", // Default border color
-                    },
-                  },
-                  "& .MuiInputLabel-root": {
-                    color: "grey", // Default label color
-                  },
-                  "& .MuiInputBase-input": {
-                    color: "beige", // Change the text color
-                  },
-                  width: "150px"
-                }} 
-              />
-          </div>
-          
-        </div>
-
-      </div>
+        
+      </div> 
 
       
     </>

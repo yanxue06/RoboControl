@@ -1,3 +1,10 @@
+html, body {
+  margin: 0;
+  padding: 0;
+  height: 100%; /* Ensure full height is used */
+  width: 100%; 
+}
+
 #root {
   width: 100%;
   height: 100%; 
@@ -11,25 +18,47 @@
   font-size: 40px;
   font-weight: bold; 
   font-family:'Lucida Sans';
-  height: 100%; 
-  width: 100%; 
   top: 30px; 
   justify-content: center;
-  text-align: center; 
+  width: 100%; 
 }
 
-.container {
+.appContainer {
+  width: 100%; 
+  height: 100%; 
+  display: flex
+}
+
+.miniContainer {
+  width: 100%;
   display: flex;        
   flex-direction: column; 
-  gap: 3rem;            /* space between columns */
-  margin: 2rem;         /* some outer spacing */
+  gap: 1rem;            /* space between columns */
+  padding-top: 5rem;
   justify-content: center; 
+}
+
+.leftPanel {
+  width: 50%; 
+  height: 100%; 
+  flex: 1;
+  background: #dddddd;
+  margin: 0; 
+  padding: 0; 
+}
+
+.rightPanel {
+  width: 50%;
+  height: 100%; 
+
+  background: rgb(107, 106, 107);
 }
 
 .column {
   display: flex;        /* so we can vertically stack items */
   flex-direction: column;
   gap: 0.5rem;          /* space between heading & buttons, and between buttons */
+  width: 100%; 
 }
 
 /* Optionally, style the heading */
@@ -38,15 +67,31 @@
   text-align: left; 
 }
 
-/* If you want to style the buttons differently, you can do so here */
-.column button {
-  min-width: 140px;     /* example: make each button at least 140px wide */
-}
-
 .attached { 
   display: flex;
   gap: 12px; 
 }
+
+.console {
+  position: absolute;
+  top: 9rem; 
+  width: 45%; 
+  background-color: rgb(107, 106, 107); 
+  height: 87%; 
+  margin-left: 50%; 
+}
+
+h1 { 
+  font-size: 40px; 
+}
+
+/* @media only screen and (max-width: 812px) {
+  .console { 
+   top: 110vh;
+   width: 80%;
+   margin-left: 10%; 
+  }
+} */
 
 @media only screen and (max-width: 422px) {
   .title { 
