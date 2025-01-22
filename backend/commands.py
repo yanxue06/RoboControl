@@ -312,7 +312,7 @@ def dNav(stations):
 
         # QUERIES WHETHER THE ROBOT HAS MOVED TO THE STARTING POINT
         while (True): 
-            status = getNavStatus
+            status = getNavStatus()
             if status == 4: 
                 break
             else: 
@@ -331,7 +331,7 @@ def dNav(stations):
         print(json_bytes.decode("utf-8", errors="ignore"))
 
         s.close() 
-        
+
     except Exception as e: 
         print(f"error {e}")
 
