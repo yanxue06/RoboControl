@@ -144,44 +144,44 @@ function App() {
       const pattern = /\b[A-Z]+[0-9]+(?=,)/g;
         
       const matches = valueDNav.match(pattern);
-      
+
       const data = []; // array of objects 
 
       if (matches) { 
         console.log("found matches")
         for (let i = 0; i < matches.length; ++i) { 
           data.push({
-            id: i + 1000, // Unique ID for each destination
-            name: match,   // The match value (e.g., LM1, LM2)
+            id: matches[i],   // The match value (e.g., LM1, LM2)
           });
         }
       }
-
-      jsonPayload = json.stringify(data); 
+      
+      
+      const jsonPayload = JSON.stringify(data); 
 
       /* ex. jsonPayload
         [
-          {"id":1,"name":"LM1"},
-          {"id":2,"name":"LM2"},
-          {"id":3,"name":"DN1"},
-          {"id":4,"name":"WM3"}
+          {"id":"LM1"},
+          {"id":"LM2"},
+          {"id":"DN1"},
+          {"id":"WM3"}
         ]
       */
       
-       response = await fetch('http://localhost:5001/dNav', {
+       const response = await fetch('http://localhost:5001/dNav', {
         method: 'POST', 
         headers: { 
           'Content-Type': 'application/json'
         }, 
-        body: jsonPaylaod
+        body: jsonPayload
        }) 
 
-       console.log("forward called")
+       console.log("nav called")
        
        console.log('Navigate Response:', response);
 
      } catch (error) {
-       console.error('Error fetching foward:', error);
+       console.error('Error fetching nav:', error);
      }
   }
 
@@ -191,8 +191,30 @@ function App() {
 
   const [valueDNav, DNavSetValue] = useState(""); 
 
-  //FORWARD 
+  // GET TASK STATUS 
 
+  async function getTaskStatus() { 
+    try { 
+      const response = await fetch("http://localhost:5001/getTaskStatus"); 
+      console.log(response);
+    } 
+    catch (error) {
+      console.error("Error getting task status", error)
+    }
+  } 
+
+ // GET NAV STUTUS 
+
+ async function getNavStatus() { 
+  try { 
+    const response = await fetch("http://localhost:5001/getNavStatus")
+  }
+  catch (error) { 
+    console.error("error getting nav status", error)
+  }
+ }
+
+  //FORWARD 
   const moveForward = async () => { 
     try {
       // TESTING DATA, in the form of a dictionary 
@@ -353,31 +375,31 @@ function App() {
       console.error('Error fetching charge:', error);
     }
   }
-
+    
   return (
     <>
       <div className="title"> Robot Control System</div>
       <div className="container">
         <div className="column">
           <h2>Status</h2>
-          <Button onClick={handleGetStatus} variant="outlined" className="shrink">
+          <Button onClick={handleGetStatus} variant="outlined">
             Get General Info
           </Button>
-          <Button onClick={handleGetLocation} variant="outlined" className="shrink">
+          <Button onClick={handleGetLocation} variant="outlined">
             Get Location 
           </Button>
-          <Button onClick={handleGetBattery} variant="outlined" className="shrink">
+          <Button onClick={handleGetBattery} variant="outlined">
             Get Battery 
           </Button>
         </div>
 
         <div className="column">
           <h2>Control</h2> 
-          <Button onClick={charge} variant="outlined" className="shrink">
+          <Button onClick={charge} variant="outlined">
             Charge Robot
           </Button>
           <div className = "attached"> 
-            <Button onClick={handleRelocate} variant="outlined" className="shrink">
+            <Button onClick={handleRelocate} variant="outlined" >
               Manual Relocate 
             </Button>
             <TextField 
@@ -403,10 +425,10 @@ function App() {
               }} 
             />
           </div>
-          <Button onClick={handleSoundPlay} variant="outlined" className="shrink">
+          <Button onClick={handleSoundPlay} variant="outlined" >
             Play Sound
           </Button>
-          <Button onClick={handleSoundPause} variant="outlined" className="shrink">
+          <Button onClick={handleSoundPause} variant="outlined" >
             Pause Sound 
           </Button>
         
@@ -420,7 +442,7 @@ function App() {
           without stopping at intermediate sites.*/}
 
           <div className = "attached"> 
-              <Button className = "shrink specialShrink" onClick={Dnavigate} variant="outlined" sx={{width: "11rem"}} > 
+              <Button onClick={Dnavigate} variant="outlined" sx={{width: "11rem"}} > 
                 Bot Navigation
               </Button> 
               <TextField
@@ -446,11 +468,17 @@ function App() {
                 }}
               /> 
           </div>
+          <Button  onClick={getNavStatus} variant="outlined" sx={{width: "11rem"}} > 
+            Navigation Status 
+          </Button> 
+          <Button conClick={getTaskStatus} variant="outlined" sx={{width: "11rem"}} > 
+            Task Status 
+          </Button> 
 
 
 
           <div className = "attached"> 
-            <Button className="shrink specialshrink" onClick={moveForward} variant="outlined" sx={{width: "11rem"}} >
+            <Button onClick={moveForward} variant="outlined" sx={{width: "11rem"}} >
               Move Forwards
             </Button>
             <TextField 
@@ -504,7 +532,7 @@ function App() {
               />
           </div>
           <div className="attached"> 
-            <Button onClick={rotateLeft} variant="outlined" sx={{width: "11rem"}} className="shrink specialshrink">
+            <Button onClick={rotateLeft} variant="outlined" sx={{width: "11rem"}} >
               Rotate Left
             </Button>
             <TextField 
@@ -532,7 +560,7 @@ function App() {
           </div>
 
           <div className="attached"> 
-            <Button className="shrink specialshrink" onClick={rotateRight} variant="outlined" sx={{width: "11rem"}}>
+            <Button onClick={rotateRight} variant="outlined" sx={{width: "11rem"}}>
               Rotate Right
             </Button>
             <TextField 

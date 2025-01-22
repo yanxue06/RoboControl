@@ -1,6 +1,8 @@
 import socket 
 import json 
 import math 
+import uuid
+import time 
 
 ROBOT_IP = "192.168.9.201"
 
@@ -230,6 +232,48 @@ def soundPause():
 
 # Navigation
 
+def to_site(site): 
+    PORT = 19206 #port of navigation APIs 
+    try: 
+        s = socket.socket() #creating a socket object to communicate with robot from client
+
+        s.connect((ROBOT_IP, PORT))
+        print(f"Connected to robot at {ROBOT_IP}:{PORT}") 
+
+        # NOW, go to chargin port 
+        data = {
+            "source_id": "SELF_POSITION",
+            "id": site,
+            "max_speed": 0.3,
+            "max_wspeed": 0.3,
+            "max_wacc": 0.2,
+            "task_id": "12345"
+        }
+        
+        payload_bytes = json.dumps(data, separators=(',', ':')).encode('utf-8')
+        length_byte = len(payload_bytes)
+
+        # Convert the header into a mutable bytearray
+        header_array = bytearray(b'\x5A\x01\x00\x01\x00\x00\x00\x1C\x0B\xEB\x00\x00\x00\x00\x00\x00') 
+        header_array[7] = length_byte   # set the 8th byte to the actual length, can only do this with an array
+
+        message = bytes(header_array) + payload_bytes
+        s.send(message)
+
+        response = s.recv(1024)
+        print(f"response: {response}")
+
+        # Parse the response header and payload
+        header = response[:16]  # First 16 bytes are the header
+        payload = response[16:]  # Remaining bytes are the JSON payload
+        print(f"Response header: {header}")
+        print(f"Response payload: {payload.decode('utf-8')}")
+
+        s.close() 
+
+    except Exception as e: 
+        print(f"Error: {e}")
+
 def dNav(stations): 
     # body in as a dictionary (flask did json to arry of dictionary conversion for me)
 
@@ -247,11 +291,12 @@ def dNav(stations):
         print(stations)
 
 
-        for i, station in enumerate(stations): 
+        for i, station in enumerate(stations): #according to the doc, then i have to start at an actual site 
             print("Stations:", stations)
-
-            # for every station, append to move_task_list the 
-            move_task_list.append({"id": station["id"], "source_id": stations[i-1]["id"], "task_id": str(i+1000)}) 
+            if i == 0: 
+                to_site(station["id"])
+            if i>0: 
+                move_task_list.append({"id": station["id"], "source_id": stations[i-1]["id"], "task_id": str(uuid.uuid4())[:8] }) 
 
         payload_dict = {"move_task_list": move_task_list}
         payload_bytes = json.dumps(payload_dict, separators=(',', ':')).encode('utf-8')
@@ -264,6 +309,18 @@ def dNav(stations):
         header_array[7] = length_byte     # set the 8th byte to the actual length, can only do this with an array
 
         message = bytes(header_array) + payload_bytes
+
+        # QUERIES WHETHER THE ROBOT HAS MOVED TO THE STARTING POINT
+        while (True): 
+            status = getNavStatus
+            if status == 4: 
+                break
+            else: 
+                print(f"curren status: {status}")
+            # add a delay so my calls arent too often 
+            time.sleep(0.8)
+
+        # DO NOT SEND THE NEW MESSAGE UNTIL THE ROBOT HAS MOVED TO THE STARTING POINT 
         s.send(message)
 
         print("sent message")
@@ -272,6 +329,9 @@ def dNav(stations):
 
         json_bytes = response[16:] 
         print(json_bytes.decode("utf-8", errors="ignore"))
+
+        s.close() 
+        
     except Exception as e: 
         print(f"error {e}")
 
@@ -283,8 +343,13 @@ def getNavStatus():
 
     s.send(b"\x5A\x01\x00\x01\x00\x00\x00\x00\x03\xFC\x00\x00\x00\x00\x00\x00")
 
-    print(f"response: {s.recv(1024)}")
+    response = s.recv(1024) 
 
+    response = json.load(response)
+
+    return response["task_status"]
+
+     
 
 def getTaskStatus(): 
     try: 

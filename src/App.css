@@ -3,6 +3,7 @@
   height: 100%; 
   margin: 0 auto;
   text-align: center;
+  overflow: hidden;
 }
 
 .title {
@@ -19,7 +20,7 @@
 
 .container {
   display: flex;        
-  flex-direction: row; 
+  flex-direction: column; 
   gap: 3rem;            /* space between columns */
   margin: 2rem;         /* some outer spacing */
   justify-content: center; 
@@ -47,15 +48,11 @@
   gap: 12px; 
 }
 
-@media only screen and (max-width: 900px) {
-  body {
-    .shrink {
-      padding: 2 4px
-    }
-
-    .specialShrink { 
-      min-width: auto
-    }
+@media only screen and (max-width: 422px) {
+  .title { 
+    font-size: 35px;
   }
-
+  .container { 
+    margin-top: 65px; 
+  }
 }
