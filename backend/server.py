@@ -66,14 +66,14 @@ def dNav():
 
     return jsonify({"message": "dNav command sent"})
 
-@app.route('/getNavStatus', methods="GET")
+@app.route('/getNavStatus', methods = ["GET"])
 def NavStatus(): 
     print("get nav status")
     commands.getNavStatus() 
 
-    return jsonify({"message: "})
+    return jsonify({"message": "sent nav status message"})
 
-@app.route('/getTaskStatus', methods="GET")
+@app.route('/getTaskStatus', methods = ["GET"])
 def TaskStatus():
     print("status endpoint hit")
     commands.getTaskStatus() 

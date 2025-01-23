@@ -92,7 +92,7 @@ def charge():
             "max_speed": 0.3,
             "max_wspeed": 0.3,
             "max_wacc": 0.2,
-            "task_id": "12345"
+            "task_id":  str(uuid.uuid4())[:8]
         }
         
         payload_bytes = json.dumps(data, separators=(',', ':')).encode('utf-8')
@@ -240,14 +240,14 @@ def to_site(site):
         s.connect((ROBOT_IP, PORT))
         print(f"Connected to robot at {ROBOT_IP}:{PORT}") 
 
-        # NOW, go to chargin port 
+        # NOW, whatever site was passed in 
         data = {
             "source_id": "SELF_POSITION",
             "id": site,
             "max_speed": 0.3,
             "max_wspeed": 0.3,
             "max_wacc": 0.2,
-            "task_id": "12345"
+            "task_id":  str(uuid.uuid4())[:8]
         }
         
         payload_bytes = json.dumps(data, separators=(',', ':')).encode('utf-8')
@@ -261,15 +261,16 @@ def to_site(site):
         s.send(message)
 
         response = s.recv(1024)
+
+        s.close() 
+
         print(f"response: {response}")
 
         # Parse the response header and payload
         header = response[:16]  # First 16 bytes are the header
         payload = response[16:]  # Remaining bytes are the JSON payload
-        print(f"Response header: {header}")
-        print(f"Response payload: {payload.decode('utf-8')}")
-
-        s.close() 
+        print(f"to_site9) response header: {header}")
+        print(f"to_site() payload: {payload.decode('utf-8', errors="ignore")}")
 
     except Exception as e: 
         print(f"Error: {e}")
@@ -287,22 +288,25 @@ def dNav(stations):
         print(f"Connected to the robot at {ROBOT_IP}:{PORT}")
         
         move_task_list = [] 
-        print("Type of stations:", type(stations))
-        print(stations)
+        print("Type of stations:", type(stations)) # Python lists 
+        print(stations) #prints all the statiosn 
 
 
-        for i, station in enumerate(stations): #according to the doc, then i have to start at an actual site 
+        for i, station in enumerate(stations): 
+            #according to the doc,  i have to start at an actual site 
             print("Stations:", stations)
             if i == 0: 
-                to_site(station["id"])
+                to_site(station["id"]) #there should be print lines 
             if i>0: 
+                # consider at i=1, stations[i-1] should have been the first station here,
+                # which we have / are moving to because we call to_site() 
                 move_task_list.append({"id": station["id"], "source_id": stations[i-1]["id"], "task_id": str(uuid.uuid4())[:8] }) 
 
         payload_dict = {"move_task_list": move_task_list}
         payload_bytes = json.dumps(payload_dict, separators=(',', ':')).encode('utf-8')
         length_byte = len(payload_bytes)
 
-        print("Payload:", payload_bytes.decode('utf-8'))  # Debug: Print the JSON being sent
+        print("pre-send payload:", payload_bytes.decode('utf-8'))  # Debug: Print the JSON being sent
 
         # Convert the header into a mutable bytearray
         header_array = bytearray(b"\x5A\x01\x00\x01\x00\x00\x00\x1E\x0B\xFA\x00\x00\x00\x00\x00\x00") 
@@ -311,17 +315,31 @@ def dNav(stations):
         message = bytes(header_array) + payload_bytes
 
         # QUERIES WHETHER THE ROBOT HAS MOVED TO THE STARTING POINT
-        while (True): 
-            status = getNavStatus()
-            if status == 4: 
-                break
-            else: 
-                print(f"current status: {status}")
-            # add a delay so my calls arent too often 
-            time.sleep(0.8)
+        while True: 
+            try:
+                status = getNavStatus()  # Ensure valid JSON
+                print(f"status type: {type(status)}")
+
+                # Safely access "task_status"
+                task_status = status.get("task_status")
+                print(f"Task Status: {task_status}")
+
+                if task_status == 4:
+                    break
+                else:
+                    print(f"Current status: {status}")
+
+                time.sleep(0.8)  # Add a delay
+            except json.JSONDecodeError as e:
+                print(f"JSON Decode Error: {e}")
+            except Exception as e:
+                print(f"Unexpected Error: {e}")
+
 
         # DO NOT SEND THE NEW MESSAGE UNTIL THE ROBOT HAS MOVED TO THE STARTING POINT 
         s.send(message)
+
+        # at this point, the robot should finally start doing its origin requested path 
 
         print("sent message")
 
@@ -336,18 +354,36 @@ def dNav(stations):
         print(f"error {e}")
 
 def getNavStatus(): 
+
     PORT = 19204 
+    try: 
+        s = socket.socket() 
+        s.connect((ROBOT_IP, PORT))  # note the tuple (ROBOT_IP, PORT)
 
-    s = socket.socket() 
-    s.connect(ROBOT_IP, PORT)
+        # Send whatever query you need:
+        s.send(b"\x5A\x01\x00\x01\x00\x00\x00\x00\x03\xFC\x00\x00\x00\x00\x00\x00")
+        
+        response_bytes = s.recv(1024)
+        s.close()
 
-    s.send(b"\x5A\x01\x00\x01\x00\x00\x00\x00\x03\xFC\x00\x00\x00\x00\x00\x00")
+        # Separate header (16 bytes) from payload
+        payload = response_bytes[16:]      # JSON portion
+        
+        print(f"payload type {type(payload)}") 
+        
+        payload_dict = None 
 
-    response = s.recv(1024) 
+        try:
+            payload_dict = json.loads(payload)  # Ensure valid JSON
+        except json.JSONDecodeError as e:
+            print(f"JSON Decode Error: {e}")
+            return json.dumps({"error": "Invalid JSON"})
 
-    response = json.load(response)
-
-    return response["task_status"]
+        print(f"current status {payload_dict.get("task_status")}")
+        return payload_dict
+    
+    except Exception as e: 
+        print(f"error {e}")
 
      
 

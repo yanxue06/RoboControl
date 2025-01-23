@@ -443,7 +443,7 @@ function App() {
               without stopping at intermediate sites.*/}
 
               <div className = "attached"> 
-                  <Button onClick={Dnavigate} variant="outlined" sx={{width: "11rem"}} > 
+                  <Button onClick={Dnavigate} variant="outlined"  > 
                     Bot Navigation
                   </Button> 
                   <TextField
@@ -477,7 +477,7 @@ function App() {
               </Button> 
 
               <div className = "attached"> 
-                <Button onClick={moveForward} variant="outlined" sx={{width: "11rem"}} >
+                <Button onClick={moveForward} variant="outlined"  >
                   Move Forwards
                 </Button>
                 <TextField 
@@ -504,7 +504,7 @@ function App() {
                 />
               </div> 
               <div className = "attached"> 
-                <Button onClick={moveBackward} variant="outlined" sx={{width: "11rem"}} className="shrink specialshrink" >
+                <Button onClick={moveBackward} variant="outlined" className="shrink specialshrink" >
                   Move Backward
                 </Button>
                 <TextField 
@@ -531,7 +531,7 @@ function App() {
                   />
               </div>
               <div className="attached"> 
-                <Button onClick={rotateLeft} variant="outlined" sx={{width: "11rem"}} >
+                <Button onClick={rotateLeft} variant="outlined"  >
                   Rotate Left
                 </Button>
                 <TextField 
@@ -559,7 +559,7 @@ function App() {
               </div>
 
               <div className="attached"> 
-                <Button onClick={rotateRight} variant="outlined" sx={{width: "11rem"}}>
+                <Button onClick={rotateRight} variant="outlined" >
                   Rotate Right
                 </Button>
                 <TextField 
@@ -591,7 +591,7 @@ function App() {
           </div> 
           <div className = "rightPanel"> 
             <div className = "console"> 
-              <h1> Display Console </h1> 
+              <h4> Display Console </h4> 
             </div> 
           </div>
         
