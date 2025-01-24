@@ -19,7 +19,9 @@ function App() {
       try {
         // Fetch map data from the Flask backend
         const response = await fetch("http://localhost:5001/map");
-        const smapData = await response.json();
+        const smapData = await response.json(); 
+        
+        // smapData is the entire JSON object 
 
         // Extract map data
         const points = smapData.normalPosList;
@@ -601,11 +603,15 @@ function App() {
             </div> 
           </div>
           </div> 
+
           <div className = "rightPanel"> 
-            <div className = "console"> 
-              {/* canvasRef.current will point to the actual <canvas> DOM element in the browser now  */}
-              <canvas ref={canvasRef} width="500" height="500"></canvas>
-            </div> 
+            {/* canvasRef.current will point to the actual <canvas> DOM element in the browser now  */}
+              <canvas 
+                ref={canvasRef} 
+                width={canvasSize}
+                height={canvasSize} 
+              >
+              </canvas>
           </div>
 
           

@@ -48,11 +48,10 @@ html, body {
 }
 
 .rightPanel {
+  display: flex;  
   width: 50%;
-  height: 73%; 
-
-  margin: auto 0; 
-  background: rgb(107, 106, 107);
+  height: 100%; 
+  align-items: center; 
 }
 
 .console {
