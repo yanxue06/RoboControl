@@ -1,10 +1,28 @@
 from flask import Flask, jsonify, request #eventually want ot make it so user can manually enter and it gets passed into functions
 from flask_cors import CORS
 import commands
+import json
 
+# source env/bin/activate
+ 
 app = Flask(__name__)
 
+# Load the .smap file !! 
+
+SMAP_FILE = "../1.smap"
+
 CORS(app) #ensure correct port is requested 
+
+@app.route('/map', methods=['GET'])
+def get_map():
+    try:
+        with open(SMAP_FILE, "r") as f:
+            smap_data = json.load(f)  # Parse the file's content as JSON
+        return jsonify(smap_data)  # Send it as a JSON response
+    except FileNotFoundError:
+        return jsonify({"error": "SMAP file not found"}), 404
+    except json.JSONDecodeError:
+        return jsonify({"error": "Invalid JSON in SMAP file"}), 400 
 
 @app.route('/status', methods=['GET']) #useful to tell us what map is currently in use 
 def status(): 

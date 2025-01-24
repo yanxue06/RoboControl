@@ -1,53 +1,65 @@
-import React, { useState } from "react";
+import React, { useState, useEffect, useRef} from "react";
 import './App.css'
 import Button from '@mui/material/Button';
 import TextField from "@mui/material/TextField";
+import { handleGetStatus, handleGetLocation, handleGetBattery } from "./StatusFunctions";
 
 //TO ACTIVATE THE ENV: source env/bin/activate
 
 function App() {
+  
+  // // MAP READING AND DRAWING 
 
-  // STATUS 
-  const handleGetStatus = async () => {
-    try {
-      // Returns a promise, which comes to a Response object.
-      const response = await fetch('http://localhost:5001/status');
-      console.log("get status called"); 
+  const canvasRef = useRef(null); // Create a reference to the <canvas> element
+  const canvasSize = 500; 
+  // at the time of rendering, the DOM elements (like the <canvas>) don’t exist yet, so useEffect ensures the DOM is ready before interacting with it.
+  // Fetch and render the map
+  useEffect(() => {
+    const fetchAndDrawMap = async () => {
+      try {
+        // Fetch map data from the Flask backend
+        const response = await fetch("http://localhost:5001/map");
+        const smapData = await response.json();
 
-      // Convert the response to JSON
-      const data = await response.json();
-      console.log('Status Response:', data);
-    } catch (error) {
-      console.error('Error fetching status:', error);
-    }
-  };
+        // Extract map data
+        const points = smapData.normalPosList;
+        const minX = smapData.header.minPos.x;
+        const maxX = smapData.header.maxPos.x;
+        const minY = smapData.header.minPos.y;
+        const maxY = smapData.header.maxPos.y;
 
-  const handleGetLocation = async () => {
-    try {
-      // Returns a promise, which comes to a Response object.
-      const response = await fetch('http://localhost:5001/location');
-      console.log("get location called"); 
+        // Normalize the coordinates
+        const normalize = (value, min, max) => {
+          return ((value - min) / (max - min)) * canvasSize;
+        };
 
-      // Convert the response to JSON
-      const data = await response.json();
-      console.log('Status Response:', data);
-    } catch (error) {
-      console.error('Error fetching status:', error);
-    }
-  };
+        // Access the canvas and context
+        const canvas = canvasRef.current;
+        const ctx = canvas.getContext("2d");
 
-  const handleGetBattery = async () => { 
-    try {
-      const response = await fetch('http://localhost:5001/battery')
-      console.log("get battery called")
-      // Convert the response to JSON
-      const data = await response.json();
-      console.log('Status Response:', data);
-    } catch (error) {
-      console.error('Error fetching status:', error);
-    }
-  }
+        // Clear the canvas
+        ctx.clearRect(0, 0, canvasSize, canvasSize);
 
+        // Optional: Draw a background (e.g., white)
+        ctx.fillStyle = "white";
+        ctx.fillRect(0, 0, canvasSize, canvasSize);
+
+        // Draw each point on the map
+        ctx.fillStyle = "black"; // Point color
+        points.forEach((point) => {
+          const x = normalize(point.x, minX, maxX); // Normalize x
+          const y = normalize(point.y, minY, maxY); // Normalize y
+          ctx.fillRect(x, canvasSize - y, 2, 2); // Draw a small point (2x2 pixels)
+        });
+
+        console.log("Map successfully drawn!");
+      } catch (error) {
+        console.error("Error fetching or drawing the map:", error);
+      }
+    };
+    fetchAndDrawMap(); 
+  }, []); 
+ 
 
   // CONTROLS 
 
@@ -472,7 +484,7 @@ function App() {
               <Button  onClick={getNavStatus} variant="outlined" > 
                 Navigation Status 
               </Button> 
-              <Button conClick={getTaskStatus} variant="outlined"  > 
+              <Button onClick={getTaskStatus} variant="outlined"  > 
                 Task Status 
               </Button> 
 
@@ -591,13 +603,15 @@ function App() {
           </div> 
           <div className = "rightPanel"> 
             <div className = "console"> 
-              <h4> Display Console </h4> 
+              {/* canvasRef.current will point to the actual <canvas> DOM element in the browser now  */}
+              <canvas ref={canvasRef} width="500" height="500"></canvas>
             </div> 
           </div>
+
+          
+
         
       </div> 
-
-      
     </>
   ) 
 }
