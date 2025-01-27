@@ -22,6 +22,7 @@ export const handleGetLocation = async () => {
       // Convert the response to JSON
       const data = await response.json();
       console.log('Status Response:', data);
+      return data 
   } catch (error) {
       console.error('Error fetching status:', error);
   }

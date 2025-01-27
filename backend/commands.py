@@ -54,6 +54,9 @@ def get_location():
 
         s.close() 
 
+        response = json_str 
+        return response 
+    
     except Exception as e: 
         print(f"Error: {e}")    
 

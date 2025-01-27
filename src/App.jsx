@@ -8,66 +8,125 @@ import { handleGetStatus, handleGetLocation, handleGetBattery } from "./StatusFu
 
 function App() {
   
-  // // MAP READING AND DRAWING 
+  const canvasRef = useRef(null);
+  const canvasWidth = 400;
+  const canvasHeight = 400;
 
-  const canvasRef = useRef(null); // Create a reference to the <canvas> element
-  const canvasSize = 500; 
-  // at the time of rendering, the DOM elements (like the <canvas>) don’t exist yet, so useEffect ensures the DOM is ready before interacting with it.
-  // Fetch and render the map
+  const [mapData, setMapData] = useState(null); // Store map data from SMAP
+  const [robotPosition, setRobotPosition] = useState(null); // Robot (x,y)
+
+  /* 
+     Fetch SMAP data once when the component mounts.
+     Also tries to fetch an initial location so we can draw the map right away.
+  */
   useEffect(() => {
-    const fetchAndDrawMap = async () => {
+    async function fetchMapAndLocation() {
       try {
-        // Fetch map data from the Flask backend
-        const response = await fetch("http://localhost:5001/map");
-        const smapData = await response.json(); 
-        
-        // smapData is the entire JSON object 
+        // 1) Fetch the map
+        const mapResponse = await fetch("http://localhost:5001/map");
+        const smapJson = await mapResponse.json();
+        console.log("Fetched map data:", smapJson);
+        setMapData(smapJson);
 
-        // Extract map data
-        const points = smapData.normalPosList;
-        const minX = smapData.header.minPos.x;
-        const maxX = smapData.header.maxPos.x;
-        const minY = smapData.header.minPos.y;
-        const maxY = smapData.header.maxPos.y;
+        // 2) Fetch the location
+        const locResponse = await fetch("http://localhost:5001/location");
+        const locJson = await locResponse.json();
+        console.log("Fetched location:", locJson);
+        // Expecting { x: 12.3, y: 4.56, ... }
+        if (typeof locJson.x === "number" && typeof locJson.y === "number") {
+          setRobotPosition({ x: locJson.x, y: locJson.y });
+        }
 
-        // Normalize the coordinates
-        const normalize = (value, min, max) => {
-          return ((value - min) / (max - min)) * canvasSize;
-        };
-
-        // Access the canvas and context
-        const canvas = canvasRef.current;
-        const ctx = canvas.getContext("2d");
-
-        // Clear the canvas
-        ctx.clearRect(0, 0, canvasSize, canvasSize);
-
-        // Optional: Draw a background (e.g., white)
-        ctx.fillStyle = "white";
-        ctx.fillRect(0, 0, canvasSize, canvasSize);
-
-        // Draw each point on the map
-        ctx.fillStyle = "black"; // Point color
-        points.forEach((point) => {
-          const x = normalize(point.x, minX, maxX); // Normalize x
-          const y = normalize(point.y, minY, maxY); // Normalize y
-          ctx.fillRect(x, canvasSize - y, 2, 2); // Draw a small point (2x2 pixels)
-        });
-
-        console.log("Map successfully drawn!");
+        // 3) Once loaded, draw immediately (if both mapData and robotPosition are now known)
+        // (But note: setMapData() and setRobotPosition() are async state updates, so we do it in a separate effect below.)
       } catch (error) {
-        console.error("Error fetching or drawing the map:", error);
+        console.error("Error fetching map or location:", error);
       }
-    };
-    fetchAndDrawMap(); 
-  }, []); 
- 
+    }
+    fetchMapAndLocation();
+  }, []);
 
-  // CONTROLS 
+  /*
+     Whenever mapData or robotPosition changes, redraw on the canvas.
+     This effect ensures we see the map right away, without waiting 10 seconds.
+  */
+  useEffect(() => {
+    if (mapData && robotPosition) {
+      drawMapAndGraph();
+    }
+  }, [mapData, robotPosition]);
+
+  // The function that actually draws the map + robot on the canvas
+  const drawMapAndGraph = () => {
+    if (!mapData || !robotPosition) return;
+
+    const canvas = canvasRef.current;
+    if (!canvas) return; // Just in case
+    const ctx = canvas.getContext("2d");
+
+    // The map data is assumed to have this shape:
+    // {
+    //   header: { minX, maxX, minY, maxY },
+    //   normalPosList: [ { x, y }, ... ]
+    // }
+    // ...
+    const { header, normalPosList } = mapData;
+    // This line extracts "minPos" and "maxPos" from the SMAP header:
+    const { minPos, maxPos } = header;
+
+    // Convert them into local variables:
+    const minX = minPos.x;
+    const maxX = maxPos.x;
+    const minY = minPos.y;
+    const maxY = maxPos.y;
+
+    // Then your normalization code remains the same:
+    const normalizeX = (value) =>
+      ((value - minX) / (maxX - minX)) * canvasWidth;
+    const normalizeY = (value) =>
+      ((value - minY) / (maxY - minY)) * canvasHeight;
+
+    // Proceed to draw...
+    // ...
+    normalPosList.forEach((point) => {
+      const x = normalizeX(point.x);
+      const y = normalizeY(point.y);
+      ctx.fillRect(x, canvasHeight - y, 2, 2);
+      ctx.fillStyle="red"; 
+    });
+
+    // Draw the robot as a red circle
+    ctx.fillStyle = "white";
+    const robotX = normalizeX(robotPosition.x);
+    const robotY = normalizeY(robotPosition.y);
+
+    ctx.beginPath();
+    // smalll circle of radius 5 px
+    ctx.arc(robotX, canvasHeight - robotY, 5, 0, 2 * Math.PI);
+    ctx.fill();
+  };
+
+  /*
+     If you want to let the user manually update the robot position 
+     (rather than calling it automatically), here's a function you can tie to 
+     a "Get Location" button. 
+  */
+  const refreshRobotPosition = async () => {
+    try {
+      const response = await fetch("http://localhost:5001/location");
+      const data = await response.json();
+      if (typeof data.x === "number" && typeof data.y === "number") {
+        setRobotPosition({ x: data.x, y: data.y });
+      }
+    } catch (error) {
+      console.error("Error refreshing robot position:", error);
+    }
+  };
+
+  // CONTROLS || NEXT SECTION 
 
   // RELOCATE IS A BAIT FUNCTION - JUST changes coords on the map for your robot USE ONLY IF CONFIDENT 
   const handleRelocate = async () => {
-
     const data = { 
       coordinates: valueCoordinates 
     }
@@ -219,14 +278,14 @@ function App() {
 
  // GET NAV STUTUS 
 
- async function getNavStatus() { 
-  try { 
-    const response = await fetch("http://localhost:5001/getNavStatus")
+  async function getNavStatus() { 
+    try { 
+      const response = await fetch("http://localhost:5001/getNavStatus")
+    }
+    catch (error) { 
+      console.error("error getting nav status", error)
+    }
   }
-  catch (error) { 
-    console.error("error getting nav status", error)
-  }
- }
 
   //FORWARD 
   const moveForward = async () => { 
@@ -375,7 +434,7 @@ function App() {
     }
   }
 
-  async function charge() {  //trying new syntax for funzies
+  async function charge()  {  //trying new syntax for funzies
     try {
       //should have a preconfigured map of charging, so no need for extra data
       await fetch('http://localhost:5001/charge', { 
@@ -400,6 +459,9 @@ function App() {
                 <h2>Status</h2>
                 <Button onClick={handleGetStatus} variant="outlined">
                   Get General Info
+                </Button>
+                <Button onClick={refreshRobotPosition} variant="outlined">
+                  Get Location (Manual)
                 </Button>
                 <Button onClick={handleGetLocation} variant="outlined">
                   Get Location 
@@ -607,10 +669,12 @@ function App() {
           <div className = "rightPanel"> 
             {/* canvasRef.current will point to the actual <canvas> DOM element in the browser now  */}
               <canvas 
-                ref={canvasRef} 
-                width={canvasSize}
-                height={canvasSize} 
+                ref={canvasRef}
+                width={canvasWidth}
+                height={canvasHeight}
+                style={{ border: "1px solid black" }}
               >
+                
               </canvas>
           </div>
 

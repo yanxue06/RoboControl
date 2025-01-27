@@ -9,7 +9,7 @@ app = Flask(__name__)
 
 # Load the .smap file !! 
 
-SMAP_FILE = "../1.smap"
+SMAP_FILE = "./maps/main.smap"
 
 CORS(app) #ensure correct port is requested 
 
@@ -32,11 +32,18 @@ def status():
     return jsonify({"message": "Got status successfully"})
 
 @app.route('/location', methods=['GET']) #useful to tell us what map is currently in use 
-def location(): 
-    print("Status endpoint hit") 
-
-    commands.get_location()
-    return jsonify({"message": "Got location successfully"})
+def location():
+    json_str = commands.get_location()
+    if not json_str:
+        return jsonify({"error": "Could not get location"}), 500
+    
+    # Convert that string to an actual Python dict so we can return real JSON
+    try:
+        loc_dict = json.loads(json_str)
+    except json.JSONDecodeError:
+        return jsonify({"error": "Invalid JSON from robot"}), 500
+    
+    return jsonify(loc_dict)
 
 @app.route('/battery', methods=['GET']) #useful to tell us what map is currently in use 
 def battery(): 
