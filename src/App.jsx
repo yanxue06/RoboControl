@@ -8,6 +8,8 @@ import { handleGetStatus, handleGetLocation, handleGetBattery } from "./StatusFu
 
 function App() {
   
+  // MAP FUNCTIONALITY 
+
   const canvasRef = useRef(null);
   const canvasWidth = 400;
   const canvasHeight = 400;
@@ -123,14 +125,14 @@ function App() {
     }
   };
 
-  // CONTROLS || NEXT SECTION 
+  // CONTROLS FUNCTIONALITY
 
-  // RELOCATE IS A BAIT FUNCTION - JUST changes coords on the map for your robot USE ONLY IF CONFIDENT 
   const handleRelocate = async () => {
     const data = { 
       coordinates: valueCoordinates 
     }
 
+    // Regex pattern for (x, y) 
     const pattern = /^\s*(-?\d+(\.\d+?)?)\s*,\s*(-?\d+(\.\d+?)?)\s*$/;
 
     const matches = data.coordinates.match(pattern)
@@ -146,7 +148,6 @@ function App() {
 
     console.log("x:", x, "y:", y);
 
-    
     try {
       // Example POST to navigate         
         const response = await fetch('http://localhost:5001/relocate', {
@@ -154,7 +155,7 @@ function App() {
           headers: {
             'Content-Type': 'application/json'
           },
-          body: JSON.stringify({   
+          body: JSON.stringify({  
             'x': x, 
             'y': y,
           })
@@ -213,6 +214,10 @@ function App() {
   async function Dnavigate() { 
     try { 
       /* valueDNav is current value */ 
+
+      // the following regular expression is used to extract each of
+      // the inputted stations --> it goes from all alphanumeric characters 
+      // up to a comma (,), and captures that group 
       
       const pattern = /\b[A-Z]+[0-9]+(?=,)/g;
         
@@ -228,7 +233,6 @@ function App() {
           });
         }
       }
-      
       
       const jsonPayload = JSON.stringify(data); 
 

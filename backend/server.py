@@ -13,6 +13,11 @@ SMAP_FILE = "./maps/main.smap"
 
 CORS(app) #ensure correct port is requested 
 
+
+# note that request.get_json() gets the body in which was sent to it 
+# during the POST request 
+
+
 @app.route('/map', methods=['GET'])
 def get_map():
     try:
@@ -135,7 +140,7 @@ def rotate_right():
 
     commands.rotate_right(request.get_json().get('angle'))
 
-    return jsonify({"message": "Right command sent"})
+    return jsonify({"message": "Right  command sent"})
 
 
 if __name__ == '__main__':
