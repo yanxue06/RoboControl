@@ -9,7 +9,7 @@ app = Flask(__name__)
 
 # Load the .smap file !! 
 
-SMAP_FILE = "./maps/main.smap"
+SMAP_FILE = "./maps/warehouse.smap"
 
 CORS(app) #ensure correct port is requested 
 
